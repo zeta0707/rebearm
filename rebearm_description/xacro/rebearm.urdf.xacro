@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rebearm">
+  <xacro:arg name="prefix" default="" />
+
+  <!-- Import rebearm macro -->
+  <xacro:include filename="$(find rebearm_description)/xacro/rebearm_description.urdf.xacro" />
+
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find rebearm_description)/xacro/rebearm.materials.xacro" />
+
+  <!-- Import rebearm ros2_control description -->
+  <xacro:include filename="$(find rebearm_description)/xacro/rebearm.ros2_control.xacro" />
+
+  <!-- Used for fixing robot -->
+  <link name="world"/>
+  <gazebo reference="world">
+    <static>true</static>
+  </gazebo>
+
+  <!-- World fixed joint-->
+  <joint name="world_fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+  
+  <xacro:rebearm parent="world" prefix="$(arg prefix)">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:rebearm>
+
+  <xacro:rebearm_ros2_control
+    name="rebearm" prefix="$(arg prefix)" />
+
+</robot>
