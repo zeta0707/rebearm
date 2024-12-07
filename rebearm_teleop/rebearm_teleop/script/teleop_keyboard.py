@@ -37,6 +37,7 @@ import os, select, sys
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int32MultiArray
+from rclpy.qos import qos_profile_sensor_data
 
 from .submodules.myutil import Rebearm, clamp, setArmAgles
 from .submodules.myconfig import *
@@ -107,6 +108,8 @@ def main():
 
     node = rclpy.create_node('teleop_keyboard_node')        # generate node
 
+    anglePub = node.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
+    
     robotarm = Rebearm()
     robotarm.home()
     print('Rebearm Teleop Keyboard controller')
@@ -122,7 +125,7 @@ def main():
     motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN]
     setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
 
-    rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_control/rebearm_control/')
+    rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_teleop/rebearm_teleop/script/')
     fhandle = open(rosPath + 'automove.csv', 'w')
 
     prev_time = time()
@@ -218,6 +221,8 @@ def main():
 
             keystroke = 0
             setArmAgles(motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_gripper)
+            anglePub.publish(motorMsg)
+
             #y, z = calculate_position_5dof(control_motor1, control_motor2,control_motor3)
             #print('y=%.1f,z=%.1f(cm)' %(y*100, z*100))
             robotarm.run(motorMsg)

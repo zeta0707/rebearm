@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Author: ChangWhan Lee
 
 """
 Library for detecting a blob based on a color range filter in HSV space

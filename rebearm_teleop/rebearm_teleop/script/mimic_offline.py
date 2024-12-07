@@ -35,10 +35,9 @@
 import os, sys
 from time import sleep, time
 import rclpy
-from rclpy.node import Node
 from std_msgs.msg import Int32MultiArray
 
-from .submodules.myutil import Rebearm, clamp, setArmAgles
+from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
 
 msg = """
@@ -49,20 +48,18 @@ Caution: need to run teleop first
 def main():
     rclpy.init()
 
-    node = rclpy.create_node('mimic_teleop_node')        # generate node
-
+    node = rclpy.create_node('mimic_offline_node')        # generate node
     robotarm = Rebearm()
     robotarm.home()
 
-    print('rebearm mimic human operation')
+    print('Rebearm mimic human operation')
 
     try:
         print(msg)
-        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_control/rebearm_control/')
+        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_teleop/rebearm_teleop/script/')
         moveHistory = open(rosPath + 'automove.csv', 'r')
 
         motorMsg = Int32MultiArray()
-        #M0, M3 torque off by default
         setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
 
         while(1):
@@ -72,11 +69,11 @@ def main():
             if not line:
                 break
 
-            motor0, motor1, motor2, motor3, grip, time_diff = line.split(',')
-            sys.stdout.write(str(motor0) + ',' + str(motor1) + ',' + str(motor2) + ',' + str(motor3) + ',' + str(grip) + ',' + str(time_diff))
+            motor0, motor1, motor2, motor3, motor4, time_diff = line.split(',')
+            sys.stdout.write(str(motor0) + ',' + str(motor1) + ',' + str(motor2) + ',' + str(motor3) + ',' + str(motor4) + ',' + str(time_diff))
             sys.stdout.flush()
 
-            setArmAgles(motorMsg, int(motor0), int(motor1), int(motor2), int(motor3), int(grip))
+            setArmAgles(motorMsg, int(motor0), int(motor1), int(motor2), int(motor3), int(motor4))
             robotarm.run(motorMsg)
 
             try:

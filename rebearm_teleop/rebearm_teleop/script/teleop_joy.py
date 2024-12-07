@@ -54,12 +54,6 @@ Left Stick up/down:     shoulder(M1) move
 Right Stick up/down:    Elbow(M2) move
 Right Stick left/right: Wrist(M3) move
 
-*** Jetson ***
-'X' : gripper open/close
-L-2 : Move Home
-R-2 : Motor Initiailze
-
-*** PC ***
 'X' : gripper open/close
 L-2 : Move Home
 R-2 : Motor Initiailze
@@ -75,7 +69,7 @@ class TeleopJoyNode(Node):
                 ('max_deg', 120),
                 ('step_deg', 20),
             ])
-
+        
         print('Rebearm Teleop Joystick controller')
         print(msg)
         self.max_deg = self.get_parameter_or('max_deg', Parameter('max_deg', Parameter.Type.INTEGER, 120)).get_parameter_value().integer_value
@@ -85,6 +79,8 @@ class TeleopJoyNode(Node):
             self.step_deg)
         )
         print('CTRL-C to quit')
+
+        self.anglePub = self.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
 
         self.auto_mode = False
         self.chatCount= 0
@@ -106,12 +102,12 @@ class TeleopJoyNode(Node):
         self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN]
         setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
 
-        # generate publisher for 'cmd_vel'
+        # generate publisher for 'joy'
         self.sub = self.create_subscription(Joy, 'joy', self.cb_joy, qos_profile_sensor_data)
-        # generate publisher for 'ledSub
+        # timer callback
         self.timer = self.create_timer(TIMER_JOY, self.cb_timer)
 
-        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_control/rebearm_control/')
+        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_teleop/rebearm_teleop/script/')
         self.fhandle = open(rosPath + 'automove.csv', 'w')
 
         self.prev_time = time()
@@ -198,6 +194,7 @@ class TeleopJoyNode(Node):
         #y, z = calculate_position_5dof(self.control_motor1, self.control_motor2,self.control_motor3)
         #print('y=%.1f,z=%.1f(cm)' %(y*100, z*100))
         self.robotarm.run(self.motorMsg)
+        self.anglePub.publish(self.motorMsg)
         print('M0= %d, M1 %d, M2= %d, M3= %d, G=%d'%(self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_gripper))
         self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) + ',' + str(self.motorMsg.data[3])
                             + ',' + str(self.motorMsg.data[4])+ ',' + str(timediff_move) + '\n')

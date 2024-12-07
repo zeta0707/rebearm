@@ -41,7 +41,6 @@ setup(
             'chase_ball = rebearm_control.chase_ball:main',
             'chase_yolo = rebearm_control.chase_yolo:main',
             'chase_moveit = rebearm_control.chase_moveit:main',
-            'mimic_teleop = rebearm_control.mimic_teleop:main',
         ],
     },
 )

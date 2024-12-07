@@ -102,6 +102,21 @@ class Rebearm(Node):
         self.motorMsg.data[4] = mMSG.data[4]
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
 
+    def readAngle(self):
+        #motor value -> degree, -120~120 => 0~1000 => -120~120
+        ang0 = int((self.m0.get_pos() - 500.0)*120.0/500.0)
+        ang1 = int((self.m1.get_pos() - 500.0)*120.0/500.0)
+        ang2 = int((self.m2.get_pos() - 500.0)*120.0/500.0)
+        ang3 = int((self.m3.get_pos() - 500.0)*120.0/500.0)
+        ang4 = int((self.m4.get_pos() - 500.0)*120.0/500.0)
+        return [ang0, ang1, ang2, ang3, ang4]
+    
+    def motors_off(self):
+        self.m0.motors_off()
+
+    def motors_on(self):
+        self.m0.motors_on()
+
     def park(self):
         print("Parking...")
         self.m0.motors_on()

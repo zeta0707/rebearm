@@ -40,6 +40,9 @@ setup(
         'console_scripts': [
             'teleop_keyboard = rebearm_teleop.script.teleop_keyboard:main',
             'teleop_joy = rebearm_teleop.script.teleop_joy:main',
+            'human_guide = rebearm_teleop.script.human_guide:main',
+            'mimic_online = rebearm_teleop.script.mimic_online:main',
+            'mimic_offline = rebearm_teleop.script.mimic_offline:main',
         ],
     },
 )

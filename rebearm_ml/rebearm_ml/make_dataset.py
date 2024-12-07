@@ -67,14 +67,6 @@ class ServicenSubscriber(Node):
     def __init__(self):
         super().__init__('ClientAsyncInit')
 
-        qos_profile1 = qos_profile_sensor_data
-        self.blob_subscriber = self.create_subscription(
-            CmdMotor,
-            "/angle_motor",
-            self.update_angle,
-            qos_profile1
-        )
-
         qos_profile2 = qos_profile_sensor_data
         self.blob_subscriber = self.create_subscription(
             PointStamped,
@@ -82,11 +74,6 @@ class ServicenSubscriber(Node):
             self.update_ball,
             qos_profile2
         )
-
-        self.cli = self.create_client(Init, 'Init')
-        while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Init service not available, waiting again...')
-        self.req = Init.Request()
 
     def update_ball(self, message):
         #ignore 1 second previous message
@@ -100,21 +87,6 @@ class ServicenSubscriber(Node):
         self.blob_y = message.point.y
         self.get_logger().info("Detected blob: %.2f  %.2f "%(self.blob_x, self.blob_y))
         return
-
-    def update_angle(self, message):
-        self.data[0] = message.data[0]
-        self.data[1] = message.data[1]
-        self.data[2] = message.data[2]
-        self.data[3] = message.data[3]
-        self.get_logger().info("Detected angle: %d  %d %d %d "%(self.data[0], self.data[1], self.data[2], self.data[3]))
-        return
-
-    def send_request(self, a):
-        self.req.motor_mode = a
-        self.future = self.cli.call_async(self.req)
-        rclpy.spin_until_future_complete(self, self.future)
-        return self.future.result()
-
 
 def get_key(settings):
     if os.name == 'nt':
@@ -159,17 +131,11 @@ def main():
     mStatus = 0
     blob_x = 0.0
     blob_y = 0.0
-    data[0] = 0
-    data[1] = 0
-    data[2] = 0
-    data[3] = 0
-
+    data = [0, 0, 0, 0]
+    
     rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_ml/rebearm_ml/')
     fhandle = open(rosPath + 'kinematics_pose.csv', 'w')
     fhandle.write('x+1,y+1,data[0],data[1],data[2],data[3]\n')
-    motorMsg = Int32MultiArray()
-    #M0, M3 torque off by default
-    setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
 
     try:
         print(msg)
@@ -178,17 +144,14 @@ def main():
             if key == ' ':
                 if mStatus == 0:
                     print('torque off')
-                    svcSubscriber.send_request(1)
+                    robotarm.motors_off()
                     blob_x = svcSubscriber.blob_x
                     blob_y = svcSubscriber.blob_y
                     mStatus = 1
                 else:
                     print('torque on')
-                    svcSubscriber.send_request(2)
-                    data[0] = svcSubscriber.data[0]
-                    data[1] = svcSubscriber.data[1]
-                    data[2] = svcSubscriber.data[2]
-                    data[3] = svcSubscriber.data[3]
+                    robotarm.motors_on()
+                    data = robotarm.readAngle()
                     mStatus = 0
 
                 status = status + 1
