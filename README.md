@@ -1,5 +1,6 @@
 # rebearm: 4DoF + 1 AirPump/Gripper DIY Arm
-**This project is about ROS2 Package for Robot Arm with DIY robot**    
+**This project is about ROS2 Package for Robot Arm with DIY robot**   
+**Under construnction** 
 Robot 3D model, BOM: Byungki  
 Circuit: Byungki, ZETA7  
 PCB layout: Byungki  
@@ -7,10 +8,12 @@ Aruduino/ESP32 scketch: ZETA7
 ROS code: ZETA7 
 
 ## Test System information
+RasberryPi5
+X86 64bit Laptop(Asus Zenbook)
 
-**Rasberry Pi/Laptop + ESP32 + Herkulex DRS-0101 Motor**    
-* Ubuntu 20.04
-* ROS Galactic
+**Rasberry Pi/Laptop + LX-16A motors**    
+* Ubuntu 24.04
+* ROS2 Jazzy
 
 ## Packages with Brief Explanation
 
