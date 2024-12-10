@@ -14,13 +14,9 @@ class CameraeNode(Node):
         self.declare_parameters(
         namespace='',
         parameters=[
-            ('camport', 0),
         ])
 
-        self.camport = self.get_parameter_or('camport').get_parameter_value().integer_value
-        self.get_logger().info('Camera Port: %s'%self.camport)
-
-        self.cap = cv2.VideoCapture(self.camport)
+        self.cap = cv2.VideoCapture('/dev/fit0701')
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.cap.set(cv2.CAP_PROP_FPS, 30)
@@ -28,7 +24,7 @@ class CameraeNode(Node):
         self.bridge = CvBridge()
         self.get_logger().info("Camera Node created")
 
-        # Create a timer that will gate the node actions twice a second
+        # Create a timer that will gate the node actions
         timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.node_callback)
 
