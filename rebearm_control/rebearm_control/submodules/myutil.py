@@ -41,11 +41,9 @@ class Joint:
             return None
         
     def motors_on(self):
-        #for id in range(1, 5):
         controller.motor_on(254)
 
     def motors_off(self):
-        #for id in range(1, 5):
         controller.motor_off(254)
 
 def clamp(n, minn, maxn):
@@ -71,11 +69,16 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, grip):
 
 def moveJoint(m0, m1, m2, m3, m4, mMSG):
     #degree -> motor value, -120~120 => 0~1000
-    m0.move_to(int(mMSG.data[0]*500.0/120.0 + 500.0))
-    m1.move_to(int(mMSG.data[1]*500.0/120.0 + 500.0))
-    m2.move_to(int(mMSG.data[2]*500.0/120.0 + 500.0))
-    m3.move_to(int(mMSG.data[3]*500.0/120.0 + 500.0))
-    m4.move_to(int(mMSG.data[4]*500.0/120.0 + 500.0))
+    if mMSG.data[0] != MOTOR_NOMOVE:
+        m0.move_to(int(mMSG.data[0]*500.0/120.0 + 500.0))
+    if mMSG.data[1] != MOTOR_NOMOVE:
+        m1.move_to(int(mMSG.data[1]*500.0/120.0 + 500.0))
+    if mMSG.data[2] != MOTOR_NOMOVE:
+        m2.move_to(int(mMSG.data[2]*500.0/120.0 + 500.0))
+    if mMSG.data[3] != MOTOR_NOMOVE:
+        m3.move_to(int(mMSG.data[3]*500.0/120.0 + 500.0))
+    if mMSG.data[4] != MOTOR_NOMOVE:
+        m4.move_to(int(mMSG.data[4]*500.0/120.0 + 500.0))
 
 class Rebearm(Node):
     """
@@ -225,7 +228,7 @@ class Rebearm(Node):
         print("Zoering Done")
 
     def picknplace(self, object, down):
-        self.motor_on()
+        self.motors_on()
         if down == 1:
             #move to pick up postion
             self.motorMsg.data[3] = MOTOR3_PICKUP

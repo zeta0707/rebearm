@@ -109,7 +109,7 @@ class ChaseObject(Node):
         
         for box in message.bounding_boxes:
             #
-            #yolov4-tiny, 416x416
+            #yolov8n
             if (box.class_id == self.DETECT_CLASS1) or (box.class_id == self.DETECT_CLASS2):
                 self.blob_x = float((box.xmax + box.xmin)/PICTURE_SIZE_X) - 1.0
                 self.blob_y = float((box.ymax + box.ymin)/PICTURE_SIZE_Y) - 1.0

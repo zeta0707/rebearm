@@ -4,9 +4,6 @@ $ ros2 launch rebearm_control blob_all.launch.py
 
 $ ros2 run rqt_image_view rqt_image_view
 
-## for Debugging ##
-$ ros2 launch rebearm_bringup mcu.launch.py
-
 # camera image publisher
 $ ros2 launch rebearm_cv usbcam.launch.py
 

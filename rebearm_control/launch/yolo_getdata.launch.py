@@ -9,20 +9,15 @@ def generate_launch_description():
   return LaunchDescription([
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
-        FindPackageShare("rebearm_bringup"), '/launch', '/mcu.launch.py'])
-    ),
-
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource([
         FindPackageShare("rebearm_cv"), '/launch', '/usbcam.launch.py'])
     ),
 
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
         # custom object
-        FindPackageShare("darknet_ros"), '/launch', '/yolov4-rebearm.launch.py'])
+        FindPackageShare("darknet_ros"), '/launch', '/yolov8-rebearm.launch.py'])
         # yolo4-tiny object
-        #FindPackageShare("darknet_ros"), '/launch', '/yolov4-tiny.launch.py'])
+        #FindPackageShare("darknet_ros"), '/launch', '/yolov8-tiny.launch.py'])
     ),
     
   ])

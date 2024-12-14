@@ -9,11 +9,6 @@ def generate_launch_description():
   return LaunchDescription([
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
-        FindPackageShare("rebearm_bringup"), '/launch', '/mcu.launch.py'])
-    ),
-
-    IncludeLaunchDescription(
-      PythonLaunchDescriptionSource([
         FindPackageShare("rebearm_cv"), '/launch', '/usbcam.launch.py'])
     ),
 

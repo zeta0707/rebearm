@@ -1,17 +1,14 @@
 ## Gamepad ##
-ros2 launch rebearm_bringup mcu.launch.py
 ros2 launch rebearm_teleop teleop_joy.launch.py
 # or
 ros2 launch rebearm_control joy_all.launch.py
 
 ## Keyboard ##
-ros2 launch rebearm_bringup mcu.launch.py
 ros2 run rebearm_teleop teleop_keyboard
 #or
 ros2 launch rebearm_control key_all.launch.py   <-- Monitor is essential
 
 ## Mimic ##
-ros2 launch rebearm_bringup mcu.launch.py
 ros2 run rebearm_control mimic_teleop
 # or
 ros2 launch rebearm_control mimic_all.launch.py
@@ -24,7 +21,7 @@ ros2 run rqt_image_view rqt_image_view
 ros2 launch rebearm_control blob_all.launch.py
 
 ## Custom Yolo tracking ##
-ros2 launch darknet_ros yolov4-rebearm.launch.py
+ros2 launch darknet_ros yolov8-rebearm.launch.py
 ros2 launch rebearm_control yolo_all.launch.py
 
 ## Take picture for yolo training

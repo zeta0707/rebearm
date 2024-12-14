@@ -134,9 +134,6 @@ Control Robot Arm with gamepad/jostick
 
 ```bash
 cd {$workspace_path}
-# jetson , terminal #1
-$ ros2 launch monicar2_bringup mcu.launch.py
-#jetson or pc, terminal #2
 $ ros2 launch monicar2_teleop teleop_joy.launch.py
 
 Left Stick left/right:  Base(M0), left/light
@@ -158,9 +155,6 @@ Control Robot Arm with keyboard
 
 ```bash
 cd {$workspace_path}
-# jetson , terminal #1
-$ ros2 launch rebearm_bringup mcu.launch.py
-#jetson or pc, terminal #2
 $ ros2 run rebearm_teleop teleop_keyboard
 
 a/d : base(M0), left/light
@@ -182,9 +176,6 @@ Autonomous move for mimicing human operation
 
 ```bash
 cd {$workspace_path}
-# jetson , terminal #1
-$ ros2 launch rebearm_bringup mcu.launch.py
-#jetson or pc, terminal #2
 $ ros2 run rebearm_control mimic_teleop
 ```
 
@@ -206,7 +197,7 @@ Find the object of the Jetson Nano on the screen, pick it then place
 
 ```bash
 #terminal #1, #object detect using Yolo_v4
-$ ros2 launch darknet_ros yolov4-rebearm.launch.py
+$ ros2 launch darknet_ros yolov8-rebearm.launch.py
 
 #terminal #2,camera publish, object -> start or stop
 $ ros2 launch rebearm_control yolo_all.launch.py
@@ -219,9 +210,6 @@ joint_states publisher -> Move robot arm accordingly, TBD
 </p>
 
 ```bash
-#terminal #1, Jetson
-$ ros2 launch rebearm_bringup mcu.launch.py
-#terminal #2, Laptop
 $ ros2 launch rebearm_control state_all.launch.py
 ```
 
