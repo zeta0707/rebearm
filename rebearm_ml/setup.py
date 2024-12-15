@@ -40,6 +40,7 @@ setup(
             'makedataset = rebearm_ml.make_dataset:main',
             'blob_nn= rebearm_ml.blob_inference:main',
             'yolo_nn= rebearm_ml.yolo_inference:main',
+            'yolo8n= rebearm_ml.yolo8n:main',
         ],
     },
 )
