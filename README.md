@@ -8,12 +8,12 @@ Aruduino/ESP32 scketch: ZETA7
 ROS code: ZETA7 
 
 ## Test System information
-RasberryPi5
-X86 64bit Laptop(Asus Zenbook)
+RasberryPi5   
+X86 64bit Laptop(Asus Zenbook)   
 
 **Rasberry Pi/Laptop + LX-16A motors**    
-* Ubuntu 24.04
-* ROS2 Jazzy
+* Ubuntu 24.04   
+* ROS2 Jazzy   
 
 ## Packages with Brief Explanation
 
