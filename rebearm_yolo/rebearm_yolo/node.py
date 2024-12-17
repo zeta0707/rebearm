@@ -1,5 +1,5 @@
 import rclpy
-import time
+import time, os
 
 from message_filters import Subscriber
 from message_filters import ApproximateTimeSynchronizer
@@ -9,9 +9,7 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
 from sensor_msgs.msg import Image, PointCloud2
 from rebearm_interfaces.msg import Detections
-
 from cv_bridge import CvBridge
-
 from ultralytics import YOLO
 
 class YoloROS(Node):
@@ -20,10 +18,10 @@ class YoloROS(Node):
         super().__init__('yolo_ros_node')
 
         self.declare_parameter("yolo_model",                "yolov8n.pt")
-        self.declare_parameter("input_rgb_topic",           "/camera/color/image_raw")
+        self.declare_parameter("input_rgb_topic",           "/image_raw")
         self.declare_parameter("input_depth_topic",         "/camera/depth/points")
         self.declare_parameter("subscribe_depth",           False)
-        self.declare_parameter("publish_annotated_image",   False)
+        self.declare_parameter("publish_annotated_image",   True)
         self.declare_parameter("rgb_topic",                 "/yolo_ros/rgb_image")
         self.declare_parameter("depth_topic",               "/yolo_ros/depth_image")
         self.declare_parameter("annotated_topic",           "/yolo_ros/annotated_image")
@@ -45,7 +43,11 @@ class YoloROS(Node):
 
         self.bridge = CvBridge()
 
-        self.model = YOLO(self.yolo_model)
+        # Initialize YOLO model
+        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/')
+        yolomodel = rosPath + self.yolo_model
+
+        self.model = YOLO(yolomodel)
         self.model.fuse()
 
         self.subscriber_qos_profile = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -152,7 +154,8 @@ class YoloROS(Node):
                                          device=self.device,
                                          verbose=False)
 
-        self.detection_msg.header       = rgb_image.header
+        #self.detection_msg.header       = rgb_image.header
+        self.detection_msg.header.stamp = self.get_clock().now().to_msg()
 
         if (not self.class_list_set) and (self.result is not None):
             for i in range(len(self.result[0].names)):

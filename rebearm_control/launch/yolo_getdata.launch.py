@@ -14,10 +14,7 @@ def generate_launch_description():
 
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
-        # custom object
-        FindPackageShare("darknet_ros"), '/launch', '/yolov8-rebearm.launch.py'])
-        # yolo4-tiny object
-        #FindPackageShare("darknet_ros"), '/launch', '/yolov8-tiny.launch.py'])
+        FindPackageShare("rebearm_yolo"), '/launch', '/yolo.launch.py'])
     ),
     
   ])

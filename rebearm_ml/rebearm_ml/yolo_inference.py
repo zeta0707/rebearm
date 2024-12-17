@@ -46,7 +46,7 @@ from time import sleep, time
 import rclpy
 from rclpy.node import Node
 from rclpy.logging import get_logger
-from darknet_ros_msgs.msg import BoundingBoxes
+from rebearm_interfaces.msg import Detections
 from rclpy.qos import qos_profile_sensor_data
 import atexit
 from std_msgs.msg import Int32MultiArray
@@ -84,7 +84,7 @@ class IKnetYolo(Node):
         self._time_detected = 0.0
         self.detect_object = 0
 
-        self.sub_center = self.create_subscription(BoundingBoxes, "/darknet_ros/bounding_boxes", self.update_object, qos_profile_sensor_data)
+        self.sub_center = self.create_subscription(Detections, "/yolo_ros/detection_result", self.update_object, qos_profile_sensor_data)
 
         self.blob_x = 0.0
         self.blob_y = 0.0
@@ -128,22 +128,23 @@ class IKnetYolo(Node):
             self.get_logger().info("Stamp %d, %d" %(now, msg_secs ) )
             return
         
-        for box in message.bounding_boxes:
-            #
-            #yolov4-tiny, 416x416
-            if (box.class_id == self.DETECT_CLASS1) or (box.class_id == self.DETECT_CLASS2):
-                self.blob_x = float((box.xmax + box.xmin)/PICTURE_SIZE_X) - 1.0
-                self.blob_y = float((box.ymax + box.ymin)/PICTURE_SIZE_Y) - 1.0
+        idx = 0
+        for box in message.class_id:
+            print(message.full_class_list[box])
+            if (message.full_class_list[box] == self.DETECT_CLASS1) or (message.full_class_list[box] == self.DETECT_CLASS2):
+                self.blob_x = float(message.bbx_center_x[idx]/PICTURE_SIZE_X) - 1.0
+                self.blob_y = float(message.bbx_center_y[idx]/PICTURE_SIZE_Y) - 1.0
                 self._time_detected = time()
 
-                if box.class_id == self.DETECT_CLASS1:
+                if message.full_class_list == self.DETECT_CLASS1:
                     self.detect_object = 1
                 else:
                     self.detect_object = 2
 
-                self.get_logger().info("Detected: %.2f  %.2f %.2f "%(box.xmax, box.xmin, self.blob_x))
+                self.get_logger().info("Detected: %.2f  %.2f"%(self.blob_x, self.blob_y))
             else:
                 self.detect_object = 0
+            idx = idx + 1
 
     def get_control_action(self):
         if self.armStatus != 'SEARCHING' :

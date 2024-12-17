@@ -14,6 +14,12 @@ def generate_launch_description():
 
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
+        FindPackageShare("rebearm_yolo"), '/launch', '/yolo.launch.py'])
+    ),
+
+    IncludeLaunchDescription(
+      PythonLaunchDescriptionSource([
         FindPackageShare("rebearm_control"), '/launch', '/chase_yolo.launch.py'])
     ),
+
   ])

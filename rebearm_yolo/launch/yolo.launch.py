@@ -4,7 +4,6 @@ import ament_index_python.packages
 import launch
 import launch_ros.actions
 from launch import LaunchDescription
-
 import yaml
 
 
@@ -21,7 +20,6 @@ def generate_launch_description():
                                               output='both',
                                               parameters=[params]
                                               )
-
     ld = LaunchDescription()
 
     ld.add_action(yolo_ros_node)
