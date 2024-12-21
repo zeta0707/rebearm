@@ -15,6 +15,7 @@ def generate_launch_description():
       PythonLaunchDescriptionSource([
         FindPackageShare("rebearm_cv"), '/launch', '/blob_detect.launch.py'])
     ),
+    
     IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
         FindPackageShare("rebearm_control"), '/launch', '/chase_ball.launch.py'])

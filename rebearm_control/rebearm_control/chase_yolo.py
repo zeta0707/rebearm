@@ -115,9 +115,9 @@ class ChaseObject(Node):
                 self.blob_y = float(message.bbx_center_y[idx]/PICTURE_SIZE_Y) - 1.0
                 self._time_detected = time()
 
-                if message.full_class_list == self.DETECT_CLASS1:
+                if message.full_class_list[box] == self.DETECT_CLASS1:
                     self.detect_object = 1
-                else:
+                elif message.full_class_list[box] == self.DETECT_CLASS2:
                     self.detect_object = 2
 
                 self.get_logger().info("Detected: %.2f  %.2f"%(self.blob_x, self.blob_y))
@@ -147,7 +147,7 @@ class ChaseObject(Node):
             self.robotarm.run(self.motorMsg)
             sleep(1.0)
 
-            self.get_logger().info("Picking up")
+            self.get_logger().info("Pick&Place %d"%(self.detect_object))
             #then pick it up, need new function
             self.robotarm.picknplace(self.detect_object, 1)
             self.reset_avoid()

@@ -1,4 +1,4 @@
 /**:
   ros__parameters:
-    DETECT_CLASS1 : "cup"
-    DETECT_CLASS2 : "mouse"
+    DETECT_CLASS1 : "watermelon"
+    DETECT_CLASS2 : "pineapple"
