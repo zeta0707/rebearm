@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Author: ChangWhan Lee
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch_ros.substitutions import FindPackageShare
@@ -16,12 +17,4 @@ def generate_launch_description():
       PythonLaunchDescriptionSource([
         FindPackageShare("rebearm_cv"), '/launch', '/blob_detect.launch.py'])
     ),
-
-    #Node(
-    #  package='rebearm_teleop', executable='teleop_getdata', name='teleop_getdata_node',
-    #  output='screen',
-    #  emulate_tty=True,
-    #  prefix = 'gnome-terminal --',
-    #),
-
   ])

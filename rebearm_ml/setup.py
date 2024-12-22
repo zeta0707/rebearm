@@ -37,7 +37,7 @@ setup(
     license='Apache License, Version 2.0',
     entry_points={
         'console_scripts': [
-            'makedataset = rebearm_ml.make_dataset:main',
+            'make_dataset = rebearm_ml.make_dataset:main',
             'blob_nn= rebearm_ml.blob_inference:main',
             'yolo_nn= rebearm_ml.yolo_inference:main',
         ],

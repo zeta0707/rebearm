@@ -59,7 +59,7 @@ from .submodules.myconfig import *
 class ChaseObject(Node):
     def __init__(self):
 
-        super().__init__('chase_object_node')
+        super().__init__('chase_yolo_node')
 
         self.declare_parameters(
             namespace='',

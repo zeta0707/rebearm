@@ -1,27 +1,39 @@
-import os
-
-import ament_index_python.packages
-import launch
-import launch_ros.actions
 from launch import LaunchDescription
-import yaml
-
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+import os, yaml
 
 def generate_launch_description():
-    share_dir = ament_index_python.packages.get_package_share_directory('rebearm_yolo')
-    
-    params_file = os.path.join(share_dir, 'config', 'yolo_ros.yaml')
+    # Get the path to default config
+    config_file = os.path.join(
+        get_package_share_directory('rebearm_yolo'), 'config', 'yolo_ros.yaml'
+    )
 
-    with open(params_file, 'r') as f:
-        params = yaml.safe_load(f)['yolo_ros_node']['ros__parameters']
+    # Make sure to pass the YAML file inside a list of dictionaries
+    with open(config_file, 'r') as f:
+        config = {'ros__parameters': yaml.safe_load(f)}
 
-    yolo_ros_node = launch_ros.actions.Node(package='rebearm_yolo',
-                                              executable='yolo_ros',
-                                              output='both',
-                                              parameters=[params]
-                                              )
-    ld = LaunchDescription()
+    # Declare the parameter you want to override
+    param_arg = DeclareLaunchArgument(
+        'yolo_model',                   # actual parameter name
+        default_value='rebearm11n.pt',  # Default value
+        description='Description of the parameter'
+    )
 
-    ld.add_action(yolo_ros_node)
+    node = Node(
+      package='rebearm_yolo', executable='yolo_ros', name='yolo_ros_node',
+      output='screen', emulate_tty=True,
+        parameters=[
+            config,
+            {
+                'yolo_model': LaunchConfiguration('yolo_model')  #actual parameter name
+            }
+        ]
+    )
 
-    return ld
+    return LaunchDescription([
+        param_arg,  # Add the launch argument
+        node
+    ])

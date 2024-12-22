@@ -134,7 +134,7 @@ Control Robot Arm with gamepad/jostick
 
 ```bash
 cd {$workspace_path}
-$ ros2 launch monicar2_teleop teleop_joy.launch.py
+$ ros2 launch monicar2_teleop joy_all.launch.py
 
 Left Stick left/right:  Base(M0), left/light
 Left Stick up/down:     shoulder(M1) move

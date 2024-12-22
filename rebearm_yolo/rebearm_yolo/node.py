@@ -17,7 +17,7 @@ class YoloROS(Node):
     def __init__(self):
         super().__init__('yolo_ros_node')
 
-        self.declare_parameter("yolo_model",                "yolov8n.pt")
+        self.declare_parameter("yolo_model",                "rebearm11n.pt")
         self.declare_parameter("input_rgb_topic",           "/image_raw")
         self.declare_parameter("input_depth_topic",         "/camera/depth/points")
         self.declare_parameter("subscribe_depth",           False)
@@ -40,6 +40,9 @@ class YoloROS(Node):
         self.detailed_topic             = self.get_parameter("detailed_topic").get_parameter_value().string_value
         self.threshold                  = self.get_parameter("threshold").get_parameter_value().double_value
         self.device                     = self.get_parameter("device").get_parameter_value().string_value
+
+        self.get_logger().info("Setting Up yolo_ros_node...")
+        self.get_logger().info("Yolo model: %s  %.2f "%(self.yolo_model , self.threshold))
 
         self.bridge = CvBridge()
 

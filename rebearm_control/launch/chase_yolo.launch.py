@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
+# Author: ChangWhan Lee
 import os
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
   motor_parameter = LaunchConfiguration(
@@ -21,7 +20,7 @@ def generate_launch_description():
     DeclareLaunchArgument('motor_parameter', default_value=motor_parameter),
 
     Node(
-      package='rebearm_control',  executable='chase_yolo',  name='chase_object_node',
+      package='rebearm_control',  executable='chase_yolo',  name='chase_yolo_node',
       output='screen',  emulate_tty=True,
       parameters=[motor_parameter],
       namespace='',
