@@ -33,7 +33,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from time import sleep, time
-import os
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter

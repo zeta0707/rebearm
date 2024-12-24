@@ -149,16 +149,16 @@ class TeleopJoyNode(Node):
         # Make jostick -> motor agngle
         elif joymsg.axes[0] != 0:
             status = status + 1
-            self.control_motor0 -= joymsg.axes[0] * self.max_deg / self.step_deg
+            self.control_motor0 += joymsg.axes[0] * self.max_deg / self.step_deg
         elif joymsg.axes[1] != 0:
             status = status + 1
-            self.control_motor1 -= joymsg.axes[1] * self.max_deg / self.step_deg
+            self.control_motor1 += joymsg.axes[1] * self.max_deg / self.step_deg
         elif joymsg.axes[3] != 0:
             status = status + 1
-            self.control_motor2 -= joymsg.axes[3] * self.max_deg / self.step_deg
+            self.control_motor2 += joymsg.axes[3] * self.max_deg / self.step_deg
         elif joymsg.axes[2] != 0:
             status = status + 1
-            self.control_motor3 -= joymsg.axes[2] * self.max_deg / self.step_deg
+            self.control_motor3 += joymsg.axes[2] * self.max_deg / self.step_deg
 
         #continous key stop
         elif ((self.keystroke > 0) and (timediff > 0.1)):

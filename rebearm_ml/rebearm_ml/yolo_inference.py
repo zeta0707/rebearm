@@ -175,7 +175,6 @@ class IKnetYolo(Node):
             self.robotarm.run(self.motorMsg)
             sleep(1.0)
             self.motorMsg.data[0] = MOTOR_NOMOVE
-            self.motorMsg.data[1] = MOTOR_NOMOVE
             self.motorMsg.data[2] = int(outputy[1].item()+0.5)
             self.motorMsg.data[3] = int(outputy[2].item()+0.5)
             self.robotarm.run(self.motorMsg)

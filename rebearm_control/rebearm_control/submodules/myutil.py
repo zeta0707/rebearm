@@ -159,7 +159,7 @@ class Rebearm(Node):
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(0.3)
 
-        self.motorMsg.data[1] = (MOTOR1_HOME - 30)
+        self.motorMsg.data[1] = (MOTOR1_HOME + 30)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(1.0)
 
@@ -171,7 +171,7 @@ class Rebearm(Node):
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(0.3)
 
-        self.motorMsg.data[3] = MOTOR3_HOME - 5
+        self.motorMsg.data[3] = MOTOR3_HOME + 5
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(1.0)
         
@@ -201,15 +201,15 @@ class Rebearm(Node):
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(0.3)
 
-        self.motorMsg.data[1] = MOTOR1_HOME - 10
+        self.motorMsg.data[1] = MOTOR1_HOME + 10
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(0.8)
 
-        self.motorMsg.data[2] = MOTOR2_HOME - 20
+        self.motorMsg.data[2] = MOTOR2_HOME + 20
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(0.8)
 
-        self.motorMsg.data[3] = MOTOR3_HOME - 20
+        self.motorMsg.data[3] = MOTOR3_HOME + 20
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(0.8)
 
@@ -245,7 +245,7 @@ class Rebearm(Node):
         sleep(0.5)
 
         #lift up
-        self.motorMsg.data[1] = (MOTOR1_HOME - 20)
+        self.motorMsg.data[1] = (MOTOR1_HOME + 20)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.motorMsg)
         sleep(1.0)
 

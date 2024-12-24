@@ -31,7 +31,6 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-# https://velog.io/@dumok_/ROS2-%EC%84%9C%EB%B9%84%EC%8A%A4-%EB%A1%9C%EB%B4%87%EC%97%90-TTS-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0
 
 from time import sleep, time
 import os
@@ -66,13 +65,11 @@ Communications Failed
 class ServicenSubscriber(Node):
     def __init__(self):
         super().__init__('ClientAsyncInit')
-
-        qos_profile2 = qos_profile_sensor_data
         self.blob_subscriber = self.create_subscription(
             PointStamped,
             "/blob/point_blob",
             self.update_ball,
-            qos_profile2
+            qos_profile_sensor_data
         )
 
     def update_ball(self, message):
@@ -80,7 +77,7 @@ class ServicenSubscriber(Node):
         msg_secs = message.header.stamp.sec
         now = self.get_clock().now().to_msg().sec
         if (msg_secs + 1 < now):
-            #self.get_logger().info("Stamp %d, %d" %(now, msg_secs ) )
+            self.get_logger().info("Stamp %d, %d" %(now, msg_secs ) )
             return
 
         self.blob_x = message.point.x
@@ -117,7 +114,7 @@ def main():
         settings = termios.tcgetattr(sys.stdin)
 
     rclpy.init()
-    node = rclpy.create_node('teleop_dataset_node')        # generate node
+    node = rclpy.create_node('dataset_node')        # generate node
 
     robotarm = Rebearm()
     robotarm.home()
@@ -140,6 +137,7 @@ def main():
     try:
         print(msg)
         while(1):
+            rclpy.spin_once(svcSubscriber)
             key = get_key(settings)
             if key == ' ':
                 if mStatus == 0:
@@ -149,9 +147,9 @@ def main():
                     blob_y = svcSubscriber.blob_y
                     mStatus = 1
                 else:
+                    data = robotarm.readAngle()
                     print('torque on')
                     robotarm.motors_on()
-                    data = robotarm.readAngle()
                     mStatus = 0
 
                 status = status + 1

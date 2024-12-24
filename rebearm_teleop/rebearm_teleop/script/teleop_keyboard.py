@@ -141,34 +141,34 @@ def main():
         while(1):
             key = get_key(settings)
             if key == 'x':              # motor1
-                control_motor1 = check_angle_range(control_motor1 + ANG_STEP)
-                status = status + 1
-            elif key == 'w':            # motor1
                 control_motor1 = check_angle_range(control_motor1 - ANG_STEP)
                 status = status + 1
-            elif key == 'j':            # motor2
-                control_motor2 = check_angle_range(control_motor2 + ANG_STEP)
+            elif key == 'w':            # motor1
+                control_motor1 = check_angle_range(control_motor1 + ANG_STEP)
                 status = status + 1
-            elif key == 'l':            # motor2
+            elif key == 'j':            # motor2
                 control_motor2 = check_angle_range(control_motor2 - ANG_STEP)
                 status = status + 1
-            elif key == ',':            # motor3
-                control_motor3 = check_angle_range(control_motor3 + ANG_STEP)
+            elif key == 'l':            # motor2
+                control_motor2 = check_angle_range(control_motor2 + ANG_STEP)
                 status = status + 1
-            elif key == 'i':            # motor3
+            elif key == ',':            # motor3
                 control_motor3 = check_angle_range(control_motor3 - ANG_STEP)
                 status = status + 1
-            elif key == 'a':            # motor0
-                control_motor0 = check_angle_range(control_motor0 + ANG_STEP)
+            elif key == 'i':            # motor3
+                control_motor3 = check_angle_range(control_motor3 + ANG_STEP)
                 status = status + 1
-            elif key == 'd':            # motor0
+            elif key == 'a':            # motor0
                 control_motor0 = check_angle_range(control_motor0 - ANG_STEP)
                 status = status + 1
+            elif key == 'd':            # motor0
+                control_motor0 = check_angle_range(control_motor0 + ANG_STEP)
+                status = status + 1
             elif key == 'g':            # gripper close
-                control_gripper = check_angle_range(control_gripper + ANG_STEP)
+                control_gripper = check_angle_range(control_gripper - ANG_STEP)
                 status = status + 1
             elif key == 'G':            # gripper open 
-                control_gripper = check_angle_range(control_gripper - ANG_STEP)
+                control_gripper = check_angle_range(control_gripper + ANG_STEP)
                 status = status + 1
 
             elif key == 'r':                # initialize motors when motor error happens
