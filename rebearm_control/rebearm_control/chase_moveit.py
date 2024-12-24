@@ -71,7 +71,7 @@ class ChaseMoveit(Node):
         self.robotarm.zero()
 
         self.motorMsg = Int32MultiArray()
-        setArmAgles(self.motorMsg, MOTOR0_ZERO, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, GRIPPER_OPEN)
+        setArmAgles(self.motorMsg, MOTOR0_ZERO, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, MOTOR4_ZERO, GRIPPER_OPEN)
         atexit.register(self.set_park)
         self._joint_sub = self.create_subscription(JointState, '/joint_states', self.moveit_callback, qos_profile_sensor_data)
         self.get_logger().info("Moveit Subscriber Awaked!! Waiting for Moveit Planning...")
@@ -81,11 +81,12 @@ class ChaseMoveit(Node):
         self.motorMsg.data[1] = trimLimits(math.degrees(cmd_msg.position[1]))
         self.motorMsg.data[2] = trimLimits(math.degrees(cmd_msg.position[2]))
         self.motorMsg.data[3] = trimLimits(math.degrees(cmd_msg.position[3]))
+        self.motorMsg.data[4] = trimLimits(math.degrees(cmd_msg.position[4]))
         #can't control air pump, then grip=0 always
-        setArmAgles(self.motorMsg, self.motorMsg.data[0] , self.motorMsg.data[1] , self.motorMsg.data[2] , self.motorMsg.data[3], GRIPPER_OPEN)
+        setArmAgles(self.motorMsg, self.motorMsg.data[0] , self.motorMsg.data[1] , self.motorMsg.data[2] , self.motorMsg.data[3], self.motorMsg.data[4], GRIPPER_OPEN)
 
         self.robotarm.run(self.motorMsg)
-        print( str(self.motorMsg.data[0]) + ':' + str(self.motorMsg.data[1]) + ':' + str(self.motorMsg.data[2]) + ':' + str(self.motorMsg.data[3]) )
+        print( str(self.motorMsg.data[0]) + ':' + str(self.motorMsg.data[1]) + ':' + str(self.motorMsg.data[2]) + ':' + str(self.motorMsg.data[3])  + ':' + str(self.motorMsg.data[4])  )
 
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')

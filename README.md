@@ -1,113 +1,57 @@
-# rebearm: 4DoF + 1 AirPump/Gripper DIY Arm
-**This project is about ROS2 Package for Robot Arm with DIY robot**   
-**Under construnction** 
-Robot 3D model, BOM: Byungki  
-Circuit: Byungki, ZETA7  
-PCB layout: Byungki  
-Aruduino/ESP32 scketch: ZETA7  
-ROS code: ZETA7 
+# rebearm: 5DoF + 1 Gripper/AirPump DIY Arm
+**This project is about ROS2 Package for Robot Arm**  
+**Under construnction**   
+
+Robot 3D model, BOM: Byungki    
+Circuit: Byungki, ZETA7      
+ROS code: ZETA7   
 
 ## Test System information
-RasberryPi5   
+Rasberry Pi5     
 X86 64bit Laptop(Asus Zenbook)   
-
-**Rasberry Pi/Laptop + LX-16A motors**    
 * Ubuntu 24.04   
 * ROS2 Jazzy   
 
 ## Packages with Brief Explanation
 
 ```
+├── Doc                   => command list
+├── Images                => Image for this README
 ├── rebearm_bringup       => robot bringup, start micro ros agent
 ├── rebearm_control       => Control DIY Robot Arm
 ├── rebearm_cv            => Computer Vision Package
 ├── rebearm_description   => Show robot model
 ├── rebearm_ml            => AI/ML
 ├── rebearm_teleop        => Teleoperation by human
-├── arduino               => micro ros on ESP32, udev rules, motor tester
+├── rebearm_yolo          => Start Yolo for object detection
 (...)
-├── script                => configure motor, camera, etc
-├── Images                => Image for this README
-├── Doc                   => command list
-├── LICENSE
-├── README.md
+├── script                => configure buslinker, camera
 ```
 
 # Especially Thanks
 OMO R1 Mini: https://github.com/omorobot/omo_r1mini-foxy  
 Other Open Source sites  
 
-### rebearm, it uses ESP32 NodeMcu
+### rebearm, it uses buslinker v2
+create_udev_rules_buslinker2.sh, delete_udev_rules_buslinker2.sh
+  udev rule for buslinker v2
 ```
-create_udev_rules_esp32snode.sh, delete_udev_rules_esp32snode.sh, esp32sNodemcu.rules:
-  udev rule for ESP32
-arduino_libraries:
-  script for building micro_ros_arduino
-motorChecker/motorChecker.ino:
-  Check Herkulex smart motor
-microROS/microROS.ino
-  Please burn this sketch for Robot ARM
+### rebearm, it uses fit0701 camera
+create_udev_rules_fit0701.sh, delete_udev_rules_fit0701.sh
+  udev rule for fit0701
 ```
 
 There's Notion page, please visit here to get latest information   
 But, It's written in Korean. Anyway, Here's the link   
-https://zeta7.notion.site/rebearm-f29941635dfb4ff29d528842d2d5c38e?pvs=4  
+TBD
 
 ## Installation
 Please download Ubuntu image from below location   
-https://drive.google.com/file/d/1Jhr4SIeKLocHbJyeximI-j3mksZNgxN3/view?usp=drive_link   
+TBD
 
 ```bash
-id: jetson
-passwd: jetson
-```
-
-### Clone source
-
-```bash
-  cd {$workspace_path}/src/
-  git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git
-  git clone https://github.com/orocapangyo/rebearm.git
-  git clone --recursive https://github.com/zeta0707/darknet_ros_fp16.git
-  darknet_ros_fp16/darknet_ros/rm_darknet_CMakeLists.sh
-```
-
-### Install dependency packages
-
-Following additional packages may be reuqired to be installed.  
-```bash
-sudo apt update
-pip3 install vcstool
-sudo apt install -y joystick ros-galactic-ackermann-msgs ros-galactic-joy* \
- ros-galactic-image-pipeline ros-galactic-ros2-control ros-galactic-ros2-controllers \
- ros-galactic-hardware-interface ros-galactic-joint-state-publisher*
-```
-
-### Build ROS2 source
-- To give authority for driver access to ESP32  
-```bash
-sudo usermod -aG dialout jetson
-
-cd {$workspace_path}/src/rebearm/arduino
-./create_udev_rules_esp32snode.sh
-```
-- Configure environment
-```bash
-cd ~/ros2_ws/src/rebearm/script
-./selDomain.sh ROS_DOMAIN_ID
-./camSelect.sh PORT_NUM
-./setMotorid.sh M0_ID M1_ID M2_ID M3_ID
-```
-- To build
-```bash
-  cd {$workspace_path}
-  colcon build --symlink-install
-```
-
-- To enable the built source into ROS2 environment
-```bash
-  cd {$workspace_path}
-  ./install/setup.bash
+id: pi
+passwd: ubuntu
 ```
 
 ### **Verify USB camera**  
@@ -118,7 +62,7 @@ Control Robot Arm with gamepad/jostick
 
 ```bash
 cd {$workspace_path}
-# jetson , terminal #1
+# RPi5 , terminal #1
 $ ros2 launch rebearm_cv usbcam.launch.py
 
 $ ros2 run rqt_image_view rqt_image_view
@@ -180,7 +124,7 @@ $ ros2 run rebearm_control mimic_teleop
 ```
 
 ### **Blob pick and plance**  
-Find the any color box of the Jetson Nano on the screen. then pick it then place  
+Find the any color box of the RPi5 Nano on the screen. then pick it then place  
 <p align="center">
     <img src="./Images/arm_blob.gif" width="500" />
 </p>
@@ -190,7 +134,7 @@ $ ros2 launch rebearm_control blob_all.launch.py
 ```
 
 ### **Yolo pick and place**  
-Find the object of the Jetson Nano on the screen, pick it then place  
+Find the object of the RPi5 Nano on the screen, pick it then place  
 <p align="center">
     <img src="Images/arm_yolo.gif" width="500" />
 </p>
@@ -220,7 +164,7 @@ neural network -> Move robot arm accordingly
 </p>
 
 ```bash
-#terminal #1, Jetson
+#terminal #1, RPi5
 $ ros2 launch rebearm_control blob_getdata.launch.py
 #terminal #2, Laptop
 $ ros2 launch rebearm_ml blob_nn.launch.py
@@ -233,7 +177,7 @@ neural network -> Move robot arm accordingly
 </p>
 
 ```bash
-#terminal #1, Jetson
+#terminal #1, RPi5
 $ ros2 launch rebearm_control yolo_getdata.launch.py 
 #terminal #2, Laptop
 $ ros2 launch rebearm_ml yolo_nn.launch.py

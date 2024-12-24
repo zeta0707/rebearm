@@ -90,6 +90,7 @@ class TeleopJoyNode(Node):
         self.control_motor1 = MOTOR1_HOME
         self.control_motor2 = MOTOR2_HOME
         self.control_motor3 = MOTOR3_HOME
+        self.control_motor4 = MOTOR4_HOME
         self.control_gripper = GRIPPER_OPEN
         self.keystroke = 0
 
@@ -99,8 +100,8 @@ class TeleopJoyNode(Node):
         self.robotarm.home()
 
         self.motorMsg = Int32MultiArray()
-        self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN]
-        setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
+        self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN]
+        setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)
 
         # generate publisher for 'joy'
         self.sub = self.create_subscription(Joy, 'joy', self.cb_joy, qos_profile_sensor_data)
@@ -133,6 +134,7 @@ class TeleopJoyNode(Node):
             self.control_motor1 = MOTOR1_HOME
             self.control_motor2 = MOTOR2_HOME
             self.control_motor3 = MOTOR3_HOME
+            self.control_motor4 = MOTOR4_HOME
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[6]
@@ -173,6 +175,7 @@ class TeleopJoyNode(Node):
             self.control_motor1 = int(clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX))
             self.control_motor2 = int(clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX))
             self.control_motor3 = int(clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX))
+            self.control_motor4 = int(clamp(self.control_motor3, MOTOR4_MIN, MOTOR4_MAX))
             self.control_gripper = int(clamp(self.control_gripper, GRIPPER_MIN, GRIPPER_MAX))
 
             timediff = time() - self.prev_time
@@ -190,14 +193,14 @@ class TeleopJoyNode(Node):
         self.prev_time_move = time()
 
         self.keystroke = 0
-        setArmAgles(self.motorMsg, self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_gripper)
+        setArmAgles(self.motorMsg, self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_gripper)
         #y, z = calculate_position_5dof(self.control_motor1, self.control_motor2,self.control_motor3)
         #print('y=%.1f,z=%.1f(cm)' %(y*100, z*100))
         self.robotarm.run(self.motorMsg)
         self.anglePub.publish(self.motorMsg)
         print('M0= %d, M1 %d, M2= %d, M3= %d, G=%d'%(self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_gripper))
         self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) + ',' + str(self.motorMsg.data[3])
-                            + ',' + str(self.motorMsg.data[4])+ ',' + str(timediff_move) + '\n')
+                            + ',' + str(self.motorMsg.data[4]) + ',' + str(self.motorMsg.data[5])+ ',' + str(timediff_move) + '\n')
         self.fhandle.flush()
             
     def cb_timer(self):

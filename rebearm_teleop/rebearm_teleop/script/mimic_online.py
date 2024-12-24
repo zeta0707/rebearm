@@ -84,10 +84,11 @@ class HumanGuideNode(Node):
         control_motor1 = msg.data[1]
         control_motor2 = msg.data[2]
         control_motor3 = msg.data[3]
-        control_gripper = msg.data[4]
-        setArmAgles(self.motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_gripper)
+        control_motor4 = msg.data[4]
+        control_gripper = msg.data[5]
+        setArmAgles(self.motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper)
         self.robotarm.run(self.motorMsg)
-        print('M0= %d, M1=%d, M2= %d, M3=%d, G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_gripper))
+        print('M0= %d, M1=%d, M2= %d, M3=%d, G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper))
 
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')

@@ -60,7 +60,7 @@ def main():
         moveHistory = open(rosPath + 'automove.csv', 'r')
 
         motorMsg = Int32MultiArray()
-        setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
+        setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)
 
         while(1):
             # Get next line from file
@@ -69,11 +69,11 @@ def main():
             if not line:
                 break
 
-            motor0, motor1, motor2, motor3, motor4, time_diff = line.split(',')
-            sys.stdout.write(str(motor0) + ',' + str(motor1) + ',' + str(motor2) + ',' + str(motor3) + ',' + str(motor4) + ',' + str(time_diff))
+            motor0, motor1, motor2, motor3, motor4, gripper, time_diff = line.split(',')
+            sys.stdout.write(str(motor0) + ',' + str(motor1) + ',' + str(motor2) + ',' + str(motor3) + ',' + str(motor4) + ',' + str(gripper) + ',' + str(time_diff))
             sys.stdout.flush()
 
-            setArmAgles(motorMsg, int(motor0), int(motor1), int(motor2), int(motor3), int(motor4))
+            setArmAgles(motorMsg, int(motor0), int(motor1), int(motor2), int(motor3), int(motor4), int(gripper))
             robotarm.run(motorMsg)
 
             try:

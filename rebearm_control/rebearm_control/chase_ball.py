@@ -75,7 +75,7 @@ class ChaseBall(Node):
         self.timer = self.create_timer(Ktimer, self.node_callback)
 
         self.motorMsg = Int32MultiArray()
-        setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
+        setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)
         self.robotarm = Rebearm()
         self.armStatus = 'HOMING'
         self.robotarm.home()
@@ -120,6 +120,7 @@ class ChaseBall(Node):
             self.motorMsg.data[1] = MOTOR_NOMOVE
             self.motorMsg.data[2] = MOTOR_NOMOVE
             self.motorMsg.data[3] = MOTOR_NOMOVE
+            self.motorMsg.data[4] = MOTOR_NOMOVE
             self.robotarm.run(self.motorMsg)
             sleep(1.0)
 
@@ -133,6 +134,7 @@ class ChaseBall(Node):
         self.motorMsg.data[1] = MOTOR1_HOME
         self.motorMsg.data[2] = MOTOR2_HOME
         self.motorMsg.data[3] = MOTOR3_HOME
+        self.motorMsg.data[4] = MOTOR4_HOME
         self.robotarm.run(self.motorMsg)
         sleep(1.0)
         self.get_logger().info("reset avoid")

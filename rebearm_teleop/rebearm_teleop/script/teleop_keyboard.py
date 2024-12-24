@@ -119,11 +119,12 @@ def main():
     control_motor1 = MOTOR1_HOME
     control_motor2 = MOTOR2_HOME
     control_motor3 = MOTOR3_HOME
+    control_motor4 = MOTOR4_HOME
     control_gripper = GRIPPER_OPEN
 
     motorMsg = Int32MultiArray()
-    motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN]
-    setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN)
+    motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN]
+    setArmAgles(motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)
 
     rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_teleop/rebearm_teleop/script/')
     fhandle = open(rosPath + 'automove.csv', 'w')
@@ -182,6 +183,7 @@ def main():
                 control_motor1 = MOTOR1_HOME
                 control_motor2 = MOTOR2_HOME
                 control_motor3 = MOTOR3_HOME
+                control_motor4 = MOTOR4_HOME
                 control_gripper = GRIPPER_OPEN
                 keystroke = 0
 
@@ -203,6 +205,7 @@ def main():
                 control_motor1 = int(clamp(control_motor1, MOTOR1_MIN, MOTOR1_MAX))
                 control_motor2 = int(clamp(control_motor2, MOTOR2_MIN, MOTOR2_MAX))
                 control_motor3 = int(clamp(control_motor3, MOTOR3_MIN, MOTOR3_MAX))
+                control_motor4 = int(clamp(control_motor4, MOTOR4_MIN, MOTOR4_MAX))
                 control_gripper = int(clamp(control_gripper, GRIPPER_MIN, GRIPPER_MAX))
                 timediff = time() - prev_time
                 prev_time = time()
@@ -220,15 +223,15 @@ def main():
             prev_time_move = time()
 
             keystroke = 0
-            setArmAgles(motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_gripper)
+            setArmAgles(motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper)
             anglePub.publish(motorMsg)
 
-            #y, z = calculate_position_5dof(control_motor1, control_motor2,control_motor3)
+            #y, z = calculate_position_5dof(control_motor1, control_motor2, control_motor3, control_motor4)
             #print('y=%.1f,z=%.1f(cm)' %(y*100, z*100))
             robotarm.run(motorMsg)
-            print('M0= %d, M1=%d, M2= %d, M3=%d, G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_gripper))
+            print('M0= %d, M1=%d, M2= %d, M3=%d, M4=%d G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper))
             fhandle.write(str(motorMsg.data[0]) + ',' + str(motorMsg.data[1]) + ',' + str(motorMsg.data[2]) + ',' + str(motorMsg.data[3])
-                        + ',' + str(motorMsg.data[4]) + ',' + str(timediff_move) + '\n')
+                        + ',' + str(motorMsg.data[4]) + ',' + str(motorMsg.data[5]) + ',' + str(timediff_move) + '\n')
             fhandle.flush()
                 
 
