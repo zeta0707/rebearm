@@ -1,5 +1,13 @@
 MOTOR_NOMOVE = 360
 
+#Tune offset with zero position
+MOTOR0_CENTER = 500.0
+MOTOR1_CENTER = 500.0
+MOTOR2_CENTER = 500.0
+MOTOR3_CENTER = 500.0
+MOTOR4_CENTER = 500.0
+MOTOR5_CENTER = 500.0
+
 #turn left or right of base
 MOTOR0_ZERO = 0
 MOTOR0_HOME = 0
@@ -12,23 +20,23 @@ MOTOR0_PLACE2 = MOTOR0_MIN
 #forward or backward
 #roll, 2 DOF
 MOTOR1_ZERO = 0
-MOTOR1_HOME = 0
+MOTOR1_HOME = 5
 MOTOR1_PICKUP = (MOTOR1_HOME - 10)
 MOTOR1_OFF = 90
 MOTOR1_MAX = 90
 MOTOR1_MIN = (MOTOR1_HOME - 65)
 
 MOTOR2_ZERO = 0
-MOTOR2_HOME = -80
+MOTOR2_HOME = -75
 MOTOR2_PICKUP = (MOTOR2_HOME+0)
 MOTOR2_OFF = -100
 MOTOR2_MAX  = (MOTOR2_HOME + 50)
 MOTOR2_MIN  = (MOTOR2_HOME - 30)
 
 MOTOR3_ZERO = 0
-MOTOR3_HOME = -85
+MOTOR3_HOME = -80
 MOTOR3_PICKUP = (MOTOR3_HOME + 10)
-MOTOR3_OFF = -100
+MOTOR3_OFF = -110
 MOTOR3_MAX  = (MOTOR3_HOME + 60)
 MOTOR3_MIN  = -90
 
@@ -52,15 +60,17 @@ PICTURE_SIZE_Y = 480.0
 K_a = -29.000
 K_b = 31.000
 
-#object tracking PI controller
 Ktimer = 0.1
 
-#teleop parameter
-MAX_CHAT = 10
-TIMER_JOY = 0.05
-TIMER_HGUIDE = 0.2
+#teleop_joy parameter
+MAX_CHAT = 5           #for protecting jostick's button chattering
+TIMER_JOY = 0.1         #for protecting jostick's button chattering
+CONT_JOY = 3            #don't move untill CONT_JOY
 
 #teleop_keyboard parameter
 MAX_ANG = 120
 ANG_STEP = 3
-CONTKEY = 3
+CONT_KEY = 3            #don't move untill CONT_KEY*100ms
+
+#human_guide parameter
+TIMER_HGUIDE = 0.2      #how frequent angle capture

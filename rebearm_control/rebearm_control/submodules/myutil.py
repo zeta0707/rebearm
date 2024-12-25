@@ -70,17 +70,17 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
 def moveJoint(m0, m1, m2, m3, m4, end, mMSG):
     #degree -> motor value, -120~120 => 0~1000
     if mMSG.data[0] != MOTOR_NOMOVE:
-        m0.move_to(int(mMSG.data[0]*500.0/120.0 + 500.0))
+        m0.move_to(int(mMSG.data[0]*500.0/120.0 + MOTOR0_CENTER))
     if mMSG.data[1] != MOTOR_NOMOVE:
-        m1.move_to(int(mMSG.data[1]*500.0/120.0 + 500.0))
+        m1.move_to(int(mMSG.data[1]*500.0/120.0 + MOTOR1_CENTER))
     if mMSG.data[2] != MOTOR_NOMOVE:
-        m2.move_to(int(mMSG.data[2]*500.0/120.0 + 500.0))
+        m2.move_to(int(mMSG.data[2]*500.0/120.0 + MOTOR2_CENTER))
     if mMSG.data[3] != MOTOR_NOMOVE:
-        m3.move_to(int(mMSG.data[3]*500.0/120.0 + 500.0))
+        m3.move_to(int(mMSG.data[3]*500.0/120.0 + MOTOR3_CENTER))
     if mMSG.data[4] != MOTOR_NOMOVE:
-        m4.move_to(int(mMSG.data[4]*500.0/120.0 + 500.0))
+        m4.move_to(int(mMSG.data[4]*500.0/120.0 + MOTOR4_CENTER))
     if mMSG.data[5] != MOTOR_NOMOVE:
-        end.move_to(int(mMSG.data[5]*500.0/120.0 + 500.0))
+        end.move_to(int(mMSG.data[5]*500.0/120.0 + MOTOR5_CENTER))
 
 class Rebearm(Node):
     """
@@ -111,12 +111,12 @@ class Rebearm(Node):
 
     def readAngle(self):
         #motor value -> degree, -120~120 => 0~1000 => -120~120
-        ang0 = int((self.m0.get_pos() - 500.0)*120.0/500.0)
-        ang1 = int((self.m1.get_pos() - 500.0)*120.0/500.0)
-        ang2 = int((self.m2.get_pos() - 500.0)*120.0/500.0)
-        ang3 = int((self.m3.get_pos() - 500.0)*120.0/500.0)
-        ang4 = int((self.m4.get_pos() - 500.0)*120.0/500.0)
-        ang5 = int((self.end.get_pos() - 500.0)*120.0/500.0)
+        ang0 = int((self.m0.get_pos() - MOTOR0_CENTER)*120.0/500.0)
+        ang1 = int((self.m1.get_pos() - MOTOR1_CENTER)*120.0/500.0) 
+        ang2 = int((self.m2.get_pos() - MOTOR2_CENTER)*120.0/500.0)
+        ang3 = int((self.m3.get_pos() - MOTOR3_CENTER)*120.0/500.0)
+        ang4 = int((self.m4.get_pos() - MOTOR4_CENTER)*120.0/500.0)
+        ang5 = int((self.end.get_pos() - MOTOR5_CENTER)*120.0/500.0)
         return [ang0, ang1, ang2, ang3, ang4, ang5]
     
     def motors_off(self):
@@ -136,7 +136,7 @@ class Rebearm(Node):
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.5)
 
-        self.motorMsg.data[1] = (MOTOR1_OFF + 20)
+        self.motorMsg.data[1] = (MOTOR1_OFF - 5)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(0.8)
 

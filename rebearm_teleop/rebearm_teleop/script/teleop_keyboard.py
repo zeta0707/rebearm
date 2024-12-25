@@ -215,8 +215,8 @@ def main():
                 #continous key press, usually less than 100ms
                 if (timediff < 0.10):
                     keystroke = keystroke + 1
-                    #ignore 3 continous key
-                    if(keystroke < CONTKEY):
+                    #accumulate till CONT_KEY
+                    if(keystroke < CONT_KEY):
                         continue
 
             timediff_move = time() - prev_time_move
@@ -225,11 +225,8 @@ def main():
             keystroke = 0
             setArmAgles(motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper)
             anglePub.publish(motorMsg)
-
-            #y, z = calculate_position_5dof(control_motor1, control_motor2, control_motor3, control_motor4)
-            #print('y=%.1f,z=%.1f(cm)' %(y*100, z*100))
             robotarm.run(motorMsg)
-            print('M0= %d, M1=%d, M2= %d, M3=%d, M4=%d G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper))
+            print('M0=%d, M1=%d, M2=%d, M3=%d, M4=%d, G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper))
             fhandle.write(str(motorMsg.data[0]) + ',' + str(motorMsg.data[1]) + ',' + str(motorMsg.data[2]) + ',' + str(motorMsg.data[3])
                         + ',' + str(motorMsg.data[4]) + ',' + str(motorMsg.data[5]) + ',' + str(timediff_move) + '\n')
             fhandle.flush()

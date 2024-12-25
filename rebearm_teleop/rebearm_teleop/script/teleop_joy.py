@@ -112,21 +112,17 @@ class TeleopJoyNode(Node):
         self.fhandle = open(rosPath + 'automove.csv', 'w')
 
         self.prev_time = time()
-        self.prev_time_move = time()
         self.timediff = 0.0
 
     def cb_joy(self, joymsg):
-        status = 0
-
-        timediff = time() - self.prev_time
-
+        PER = 0.05    #50ms
         # initialize motors when motor error happens
         if joymsg.buttons[7] == 1 and self.mode_button_last == 0:
             print('Initialize motors')
             #self.int_client.send_request(0)
             self.mode_button_last = joymsg.buttons[7]
 
-        # initialize motors when motor error happens
+        # go home position
         elif joymsg.buttons[6] == 1 and self.mode_button_last == 0:
             print('Home position')
             self.robotarm.home()
@@ -141,71 +137,64 @@ class TeleopJoyNode(Node):
 
         # gripper open/close
         elif joymsg.buttons[3] == 1 and self.mode_button_last == 0:
-            status = status + 1
             if self.control_gripper == GRIPPER_OPEN:
                 self.control_gripper = GRIPPER_CLOSE
             else:
                 self.control_gripper = GRIPPER_OPEN
             self.mode_button_last = joymsg.buttons[3]
 
-        # Make jostick -> motor agngle
-        elif joymsg.axes[0] != 0:
-            status = status + 1
-            self.control_motor0 += joymsg.axes[0] * self.max_deg / self.step_deg
-        elif joymsg.axes[1] != 0:
-            status = status + 1
-            self.control_motor1 += joymsg.axes[1] * self.max_deg / self.step_deg
-        elif joymsg.axes[3] != 0:
-            status = status + 1
-            self.control_motor2 += joymsg.axes[3] * self.max_deg / self.step_deg
-        elif joymsg.axes[2] != 0:
-            status = status + 1
-            self.control_motor3 += joymsg.axes[2] * self.max_deg / self.step_deg
+        timediff = time() - self.prev_time
+        # joystick move detected
+        if ((joymsg.axes[0] != 0) or (joymsg.axes[1] != 0) or (joymsg.axes[2] != 0) or (joymsg.axes[3] != 0)):
+            #too short interval, wait more till PER
+            if (timediff < PER):
+                return 
+            
+            self.keystroke = self.keystroke + 1
+            #update angle, but not move yet
+            if (joymsg.axes[0] != 0):
+                self.control_motor0 += int(joymsg.axes[0] * self.step_deg + 0.5)
+                self.control_motor0 = int(clamp(self.control_motor0, MOTOR0_MIN, MOTOR0_MAX))
+            elif joymsg.axes[1] != 0:
+                self.control_motor1 += int(joymsg.axes[1] * self.step_deg + 0.5)
+                self.control_motor1 = int(clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX))
+            elif joymsg.axes[3] != 0:
+                self.control_motor2 += int(joymsg.axes[3] * self.step_deg + 0.5)
+                self.control_motor2 = int(clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX))
+            elif joymsg.axes[2] != 0:
+                self.control_motor3 += int(joymsg.axes[2] * self.step_deg + 0.5)
+                self.control_motor3 = int(clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX))
 
-        #continous key stop
-        elif ((self.keystroke > 0) and (timediff > 0.1)):
+            #over PER, then wait PER*CONT_JOY
+            if (self.keystroke < CONT_JOY):
+                #print("short", self.keystroke, timediff)
+                return
+            # over PER*CONT_JOY
+            else:
+                self.keystroke = 0
+                #print("long", self.keystroke, timediff)
+
+        #jostick move stopped
+        elif(self.keystroke > 0) and (timediff>CONT_JOY*PER):
             self.keystroke = 0
-        else:
-            #nothing to do, then return
-            return True
+            #print("stopped", self.keystroke, timediff)
 
-        #key pressed, torque
-        if status == 1:
-            self.control_motor0 = int(clamp(self.control_motor0, MOTOR0_MIN, MOTOR0_MAX))
-            self.control_motor1 = int(clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX))
-            self.control_motor2 = int(clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX))
-            self.control_motor3 = int(clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX))
-            self.control_motor4 = int(clamp(self.control_motor3, MOTOR4_MIN, MOTOR4_MAX))
-            self.control_gripper = int(clamp(self.control_gripper, GRIPPER_MIN, GRIPPER_MAX))
+        #no joystick, no button
+        elif self.chatCount < MAX_CHAT:
+            return
 
-            timediff = time() - self.prev_time
-            self.prev_time = time()
-            status = 0
-
-            #continous key press, usually less than 100ms
-            if (timediff < 0.10):
-                self.keystroke = self.keystroke + 1
-                #ignore 3 continous key
-                if(self.keystroke < CONTKEY):
-                    return
-                
-        timediff_move = time() - self.prev_time_move
-        self.prev_time_move = time()
-
-        self.keystroke = 0
+        self.prev_time = time()
         setArmAgles(self.motorMsg, self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_gripper)
-        #y, z = calculate_position_5dof(self.control_motor1, self.control_motor2,self.control_motor3)
-        #print('y=%.1f,z=%.1f(cm)' %(y*100, z*100))
         self.robotarm.run(self.motorMsg)
         self.anglePub.publish(self.motorMsg)
-        print('M0= %d, M1 %d, M2= %d, M3= %d, G=%d'%(self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_gripper))
+        print('M0=%d, M1=%d, M2=%d, M3=%d, M4=%d, G=%d'%(self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_gripper))
         self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) + ',' + str(self.motorMsg.data[3])
-                            + ',' + str(self.motorMsg.data[4]) + ',' + str(self.motorMsg.data[5])+ ',' + str(timediff_move) + '\n')
+                            + ',' + str(self.motorMsg.data[4]) + ',' + str(self.motorMsg.data[5])+ ',' + str(timediff) + '\n')
         self.fhandle.flush()
             
     def cb_timer(self):
         if (self.mode_button_last == 1):
-            self.chatCount += 1                     # protect chattering
+            self.chatCount += 1                     # protect chattering for button
         if (self.chatCount > MAX_CHAT):
             self.mode_button_last = 0
             self.chatCount = 0
