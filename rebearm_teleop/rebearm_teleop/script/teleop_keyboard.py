@@ -57,9 +57,7 @@ w/x : shoulder(M1) move
 j/l : Elbow(M2) move
 i/, : Wrist(M3) move
 g/G : Gripper
-
-r: Motor Reset
-h: Move home
+h   : Move home
 
 CTRL-C to quit
 """
@@ -171,10 +169,6 @@ def main():
             elif key == 'G':            # gripper open 
                 control_gripper = check_angle_range(control_gripper + ANG_STEP)
                 status = status + 1
-
-            elif key == 'r':                # initialize motors when motor error happens
-                print('Reset motors')
-                #int_client.send_request(0)
 
             elif key == 'h':
                 print('Home position')

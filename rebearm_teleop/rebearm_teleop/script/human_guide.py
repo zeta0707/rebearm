@@ -57,23 +57,15 @@ class HumanGuideNode(Node):
         self.declare_parameters(    # bring the param from yaml file
             namespace='',
             parameters=[
-                ('max_deg', 120),
-                ('step_deg', 20),
             ])
 
         print('Rebearm Human Guide controller')
         print(msg)
-        self.max_deg = self.get_parameter_or('max_deg', Parameter('max_deg', Parameter.Type.INTEGER, 120)).get_parameter_value().integer_value
-        self.step_deg = self.get_parameter_or('step_deg', Parameter('step_deg', Parameter.Type.INTEGER, 20)).get_parameter_value().integer_value
-        print('max ang: %s rad/s, step: %s'%
-            (self.max_deg,
-            self.step_deg)
-        )
         print('CTRL-C to quit')
 
         self.anglePub = self.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
         self.motorMsg = Int32MultiArray()
-        self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN]
+        self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN]
 
         atexit.register(self.set_park)
 
@@ -98,9 +90,9 @@ class HumanGuideNode(Node):
         self.timediff = time() - self.prev_time
         self.prev_time = time()
                 
-        print('M0= %d, M1 %d, M2= %d, M3= %d, G=%d'%(self.motorMsg.data[0], self.motorMsg.data[1], self.motorMsg.data[2], self.motorMsg.data[3], self.motorMsg.data[4]))
+        print('M0=%d, M1=%d, M2=%d, M3=%d, M4=%d, G=%d'%(self.motorMsg.data[0], self.motorMsg.data[1], self.motorMsg.data[2], self.motorMsg.data[3], self.motorMsg.data[4], self.motorMsg.data[5]))
         self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) 
-                           + ',' + str(self.motorMsg.data[3]) + ',' + str(self.motorMsg.data[4])+ ',' + str(timediff) + '\n')
+                           + ',' + str(self.motorMsg.data[3]) + ',' + str(self.motorMsg.data[4]) +  ',' + str(self.motorMsg.data[5]) +',' + str(timediff) + '\n')
         self.fhandle.flush()
         self.anglePub.publish(self.motorMsg)
         

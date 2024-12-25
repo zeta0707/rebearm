@@ -192,6 +192,10 @@ class Rebearm(Node):
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.0)
 
+        self.motorMsg.data[4] = MOTOR4_HOME
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.0)
+    
         self.motorMsg.data[0] = MOTOR0_HOME
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.5)
@@ -244,17 +248,21 @@ class Rebearm(Node):
             moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
             sleep(0.5)
 
+            self.motorMsg.data[4] = MOTOR4_PICKUP
+            moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+            sleep(0.5)
+
         #grap action
-        self.motorMsg.data[4] = GRIPPER_CLOSE
+        self.motorMsg.data[5] = GRIPPER_CLOSE
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(0.5)
 
         #lift up
-        self.motorMsg.data[1] = (MOTOR1_HOME + 20)
+        self.motorMsg.data[1] = (MOTOR1_HOME + 10)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.0)
 
-        self.motorMsg.data[2] = MOTOR2_HOME
+        self.motorMsg.data[2] = (MOTOR2_HOME + 10)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.0)
 
@@ -278,11 +286,11 @@ class Rebearm(Node):
         #place action
 
         #lift up
-        self.motorMsg.data[2] = MOTOR2_HOME
+        self.motorMsg.data[2] =(MOTOR2_HOME + 10)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.0)
 
-        self.motorMsg.data[1] = MOTOR1_HOME
+        self.motorMsg.data[1] = (MOTOR1_HOME + 10)
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(1.0)
 

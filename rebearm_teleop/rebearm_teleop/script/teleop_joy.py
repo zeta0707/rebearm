@@ -56,7 +56,6 @@ Right Stick left/right: Wrist(M3) move
 
 'X' : gripper open/close
 L-2 : Move Home
-R-2 : Motor Initiailze
 """
 
 class TeleopJoyNode(Node):
@@ -116,14 +115,9 @@ class TeleopJoyNode(Node):
 
     def cb_joy(self, joymsg):
         PER = 0.05    #50ms
-        # initialize motors when motor error happens
-        if joymsg.buttons[7] == 1 and self.mode_button_last == 0:
-            print('Initialize motors')
-            #self.int_client.send_request(0)
-            self.mode_button_last = joymsg.buttons[7]
 
         # go home position
-        elif joymsg.buttons[6] == 1 and self.mode_button_last == 0:
+        if joymsg.buttons[6] == 1 and self.mode_button_last == 0:
             print('Home position')
             self.robotarm.home()
             self.control_motor0 = MOTOR0_HOME
