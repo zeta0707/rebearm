@@ -70,17 +70,17 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
 def moveJoint(m0, m1, m2, m3, m4, end, mMSG):
     #degree -> motor value, -120~120 => 0~1000
     if mMSG.data[0] != MOTOR_NOMOVE:
-        m0.move_to(int(mMSG.data[0]*500.0/120.0 + MOTOR0_CENTER))
+        m0.move_to(int(mMSG.data[0]*500.0/120.0 + 500.0))
     if mMSG.data[1] != MOTOR_NOMOVE:
-        m1.move_to(int(mMSG.data[1]*500.0/120.0 + MOTOR1_CENTER))
+        m1.move_to(int(mMSG.data[1]*500.0/120.0 + 500.0))
     if mMSG.data[2] != MOTOR_NOMOVE:
-        m2.move_to(int(mMSG.data[2]*500.0/120.0 + MOTOR2_CENTER))
+        m2.move_to(int(mMSG.data[2]*500.0/120.0 + 500.0))
     if mMSG.data[3] != MOTOR_NOMOVE:
-        m3.move_to(int(mMSG.data[3]*500.0/120.0 + MOTOR3_CENTER))
+        m3.move_to(int(mMSG.data[3]*500.0/120.0 + 500.0))
     if mMSG.data[4] != MOTOR_NOMOVE:
-        m4.move_to(int(mMSG.data[4]*500.0/120.0 + MOTOR4_CENTER))
+        m4.move_to(int(mMSG.data[4]*500.0/120.0 + 500.0))
     if mMSG.data[5] != MOTOR_NOMOVE:
-        end.move_to(int(mMSG.data[5]*500.0/120.0 + MOTOR5_CENTER))
+        end.move_to(int(mMSG.data[5]*500.0/120.0 + 500.0))
 
 class Rebearm(Node):
     """
@@ -111,12 +111,12 @@ class Rebearm(Node):
 
     def readAngle(self):
         #motor value -> degree, -120~120 => 0~1000 => -120~120
-        ang0 = int((self.m0.get_pos() - MOTOR0_CENTER)*120.0/500.0)
-        ang1 = int((self.m1.get_pos() - MOTOR1_CENTER)*120.0/500.0) 
-        ang2 = int((self.m2.get_pos() - MOTOR2_CENTER)*120.0/500.0)
-        ang3 = int((self.m3.get_pos() - MOTOR3_CENTER)*120.0/500.0)
-        ang4 = int((self.m4.get_pos() - MOTOR4_CENTER)*120.0/500.0)
-        ang5 = int((self.end.get_pos() - MOTOR5_CENTER)*120.0/500.0)
+        ang0 = int((self.m0.get_pos() - 500.0)*120.0/500.0)
+        ang1 = int((self.m1.get_pos() - 500.0)*120.0/500.0) 
+        ang2 = int((self.m2.get_pos() - 500.0)*120.0/500.0)
+        ang3 = int((self.m3.get_pos() - 500.0)*120.0/500.0)
+        ang4 = int((self.m4.get_pos() - 500.0)*120.0/500.0)
+        ang5 = int((self.end.get_pos() - 500.0)*120.0/500.0)
         return [ang0, ang1, ang2, ang3, ang4, ang5]
     
     def motors_off(self):
@@ -186,11 +186,11 @@ class Rebearm(Node):
 
         self.motorMsg.data[2] = MOTOR2_HOME
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.5)
+        sleep(1.0)
 
         self.motorMsg.data[3] = MOTOR3_HOME
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        sleep(1.5)
 
         self.motorMsg.data[4] = MOTOR4_HOME
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
@@ -210,31 +210,55 @@ class Rebearm(Node):
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
         sleep(0.3)
 
-        self.motorMsg.data[1] = MOTOR1_HOME + 10
+        self.motorMsg.data[4] = MOTOR4_ZERO
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
+        sleep(1.0)
 
-        self.motorMsg.data[2] = MOTOR2_HOME + 20
+        self.motorMsg.data[1] = 25                    #move reverse at first
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
+        sleep(1.0)
 
-        self.motorMsg.data[3] = MOTOR3_HOME + 20
+        self.motorMsg.data[2] = int(MOTOR2_HOME /2)    #move 1/2
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
+        sleep(1.0)
+
+        self.motorMsg.data[3] = int(MOTOR3_HOME/2)      #move 1/2
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.0)
 
         self.motorMsg.data[2] = MOTOR2_ZERO
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
-
-        self.motorMsg.data[1] = MOTOR1_ZERO
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
+        sleep(1.5)
 
         self.motorMsg.data[3] = MOTOR3_ZERO
         moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
+        sleep(1.5)
 
+        self.motorMsg.data[1] = MOTOR1_ZERO
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.5)
         print("Zoering Done")
+
+    def deg90(self):
+        print("Run 90degree")
+        self.motors_on()
+
+        self.motorMsg.data[2] = MOTOR_RIGHT
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.0)
+
+        self.motorMsg.data[3] = MOTOR_RIGHT
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.0)
+        
+        self.motorMsg.data[1] = 0
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.0)
+
+        self.motorMsg.data[0] = MOTOR0_HOME
+        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        sleep(1.0)
+        print("90degree Done")
 
     def picknplace(self, object, down):
         self.motors_on()

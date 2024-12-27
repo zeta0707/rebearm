@@ -49,13 +49,15 @@ msg = """
 Control Your Robot!
 ---------------------------
 Moving around:
-Left Stick left/right:  Base(M0), left/light
-Left Stick up/down:     shoulder(M1) move
-Right Stick up/down:    Elbow(M2) move
-Right Stick left/right: Wrist(M3) move
+Left lever left/right:  Base(M0), left/light
+Left lever up/down:     shoulder(M1) move
+Right lever up/down:    Elbow(M2) move
+Right lever left/right: Wrist(M3) move
 
-'X' : gripper open/close
-L-2 : Move Home
+X   : gripper open/close toggle
+L-1 : 90 position, motor assemble check
+L-2 : Move home
+R-2 : zero position, motor assemble check
 """
 
 class TeleopJoyNode(Node):
@@ -128,6 +130,32 @@ class TeleopJoyNode(Node):
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[6]
+
+        # go zero position
+        elif joymsg.buttons[7] == 1 and self.mode_button_last == 0:
+            print('zero position')
+            self.robotarm.zero()
+            self.control_motor0 = MOTOR0_HOME
+            self.control_motor1 = 0
+            self.control_motor2 = 0
+            self.control_motor3 = 0
+            self.control_motor4 = MOTOR4_ZERO
+            self.control_gripper = GRIPPER_OPEN
+            self.keystroke = 0
+            self.mode_button_last = joymsg.buttons[7]
+
+        # go 90degree position
+        elif joymsg.buttons[4] == 1 and self.mode_button_last == 0:
+            print('90degree position')
+            self.robotarm.deg90()
+            self.control_motor0 = MOTOR0_HOME
+            self.control_motor1 = 0
+            self.control_motor2 = MOTOR_RIGHT
+            self.control_motor3 = MOTOR_RIGHT
+            self.control_motor4 = MOTOR_RIGHT
+            self.control_gripper = GRIPPER_OPEN
+            self.keystroke = 0
+            self.mode_button_last = joymsg.buttons[4]
 
         # gripper open/close
         elif joymsg.buttons[3] == 1 and self.mode_button_last == 0:

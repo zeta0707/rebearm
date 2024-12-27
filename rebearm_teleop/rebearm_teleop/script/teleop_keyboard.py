@@ -58,6 +58,8 @@ j/l : Elbow(M2) move
 i/, : Wrist(M3) move
 g/G : Gripper
 h   : Move home
+9   : 90 position, motor assemble check
+z   : zero position, motor assemble check
 
 CTRL-C to quit
 """
@@ -169,6 +171,28 @@ def main():
             elif key == 'G':            # gripper open 
                 control_gripper = check_angle_range(control_gripper + ANG_STEP)
                 status = status + 1
+
+            elif key == '9':
+                print('90degree position')
+                robotarm.deg90()
+                control_motor0 = MOTOR0_HOME
+                control_motor1 = 0
+                control_motor2 = MOTOR_RIGHT
+                control_motor3 = MOTOR_RIGHT
+                control_motor4 = MOTOR_RIGHT
+                control_gripper = GRIPPER_OPEN
+                keystroke = 0
+
+            elif key == 'z':
+                print('zero position')
+                robotarm.zero()
+                control_motor0 = MOTOR0_HOME
+                control_motor1 = 0
+                control_motor2 = 0
+                control_motor3 = 0
+                control_motor4 = MOTOR4_ZERO
+                control_gripper = GRIPPER_OPEN
+                keystroke = 0
 
             elif key == 'h':
                 print('Home position')
