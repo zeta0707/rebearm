@@ -152,7 +152,7 @@ class TeleopJoyNode(Node):
             self.control_motor1 = 0
             self.control_motor2 = MOTOR_RIGHT
             self.control_motor3 = MOTOR_RIGHT
-            self.control_motor4 = MOTOR_RIGHT
+            self.control_motor4 = MOTOR4_HOME
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[4]

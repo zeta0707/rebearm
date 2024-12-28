@@ -40,6 +40,15 @@ class Joint:
         except:
             return None
         
+    def set_offset(self, deviation):
+        controller.set_position_offset(self.id, deviation)
+
+    def get_offset(self):
+        try:
+            return controller.get_position_offset(self.id)
+        except:
+            return None  
+           
     def motors_on(self):
         controller.motor_on(254)
 
@@ -67,7 +76,20 @@ def trimLimits(mtr_pos):
 def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
     arm.data = [ang0, ang1, ang2, ang3, ang4, grip]
 
-def moveJoint(m0, m1, m2, m3, m4, end, mMSG):
+def moveJoint(id, motor, mMSG):
+    #degree -> motor value, -120~120 => 0~1000
+    if mMSG.data[id] != MOTOR_NOMOVE:
+        #print("target:", mMSG.data[id])
+        motor.move_to(int(mMSG.data[id]*500.0/120.0 + 500.0))
+        #wait until 4 degree
+        while True:
+            ang = int((float(motor.get_pos()) - 500.0)*120.0/500.0) 
+            #print(ang, ',', sep='', end='', flush=True)
+            if abs(ang - mMSG.data[id]) < 4:
+                #print("Done")
+                return
+
+def moveJointAll(m0, m1, m2, m3, m4, end, mMSG):
     #degree -> motor value, -120~120 => 0~1000
     if mMSG.data[0] != MOTOR_NOMOVE:
         m0.move_to(int(mMSG.data[0]*500.0/120.0 + 500.0))
@@ -107,7 +129,7 @@ class Rebearm(Node):
         self.motorMsg.data[3] = mMSG.data[3]
         self.motorMsg.data[4] = mMSG.data[4]
         self.motorMsg.data[5] = mMSG.data[5]
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
+        moveJointAll(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
 
     def readAngle(self):
         #motor value -> degree, -120~120 => 0~1000 => -120~120
@@ -125,32 +147,52 @@ class Rebearm(Node):
     def motors_on(self):
         self.m0.motors_on()
 
+    def get_offsets(self):
+        offset0 = self.m0.get_offset()
+        offset1 = self.m1.get_offset()
+        offset2 = self.m2.get_offset()
+        offset3 = self.m3.get_offset()
+        offset4 = self.m4.get_offset()
+        offset5 = self.end.get_offset()
+        return [offset0, offset1, offset2, offset3, offset4, offset5]
+
+    def set_offset(self, id, deviation):
+        if (id == 0):
+            self.m0.set_offset(deviation)
+        elif (id == 1):
+            self.m1.set_offset(deviation)
+        elif (id == 2):
+            self.m2.set_offset(deviation)
+        if (id == 3):
+            self.m3.set_offset(deviation)
+        if (id == 4):
+            self.m4.set_offset(deviation)
+        if (id == 5):
+            self.end.set_offset(deviation)
+
     def park(self):
         print("Parking...")
         self.m0.motors_on()
         self.motorMsg.data[5] = GRIPPER_OPEN
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.3)
+        moveJoint(5, self.end, self.motorMsg)
+
+        self.motorMsg.data[4] = MOTOR4_OFF
+        moveJoint(4, self.m4, self.motorMsg)
 
         self.motorMsg.data[0] = MOTOR0_OFF
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(0, self.m0, self.motorMsg)
 
         self.motorMsg.data[1] = (MOTOR1_OFF - 5)
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
-
+        moveJoint(1, self.m1, self.motorMsg)
+        
         self.motorMsg.data[2] = MOTOR2_OFF
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.8)
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[3] = MOTOR3_OFF
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.4)
+        moveJoint(3, self.m3, self.motorMsg)
 
         self.motorMsg.data[1] = MOTOR1_OFF
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.2)
+        moveJoint(1, self.m1, self.motorMsg)
 
         #add all motor torque off
         self.m0.motors_off()
@@ -161,45 +203,38 @@ class Rebearm(Node):
         self.m0.motors_on()
 
         self.motorMsg.data[5] = GRIPPER_OPEN
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.3)
+        moveJoint(5, self.end, self.motorMsg)
 
         self.motorMsg.data[1] = (MOTOR1_HOME + 30)
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(1, self.m1, self.motorMsg)
 
     def home(self):
         print("Homing...")
         self.m0.motors_on()
 
         self.motorMsg.data[5] = GRIPPER_OPEN
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.3)
+        moveJoint(5, self.end, self.motorMsg)
 
-        self.motorMsg.data[3] = MOTOR3_HOME + 5
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        self.motorMsg.data[3] = MOTOR3_HOME + 15
+        moveJoint(3, self.m3, self.motorMsg)
         
-        self.motorMsg.data[1] = MOTOR1_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        self.motorMsg.data[1] = MOTOR1_HOME + 15
+        moveJoint(1, self.m1, self.motorMsg)
 
         self.motorMsg.data[2] = MOTOR2_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[3] = MOTOR3_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(3, self.m3, self.motorMsg)
 
         self.motorMsg.data[4] = MOTOR4_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
-    
-        self.motorMsg.data[0] = MOTOR0_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(4, self.m4, self.motorMsg)
 
+        self.motorMsg.data[1] = MOTOR1_HOME
+        moveJoint(1, self.m1, self.motorMsg)
+
+        self.motorMsg.data[0] = MOTOR0_HOME
+        moveJoint(0, self.m0, self.motorMsg)
         print("Homing Done")
 
     def zero(self):
@@ -207,36 +242,28 @@ class Rebearm(Node):
         self.m0.motors_on()
 
         self.motorMsg.data[5] = GRIPPER_OPEN
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.3)
+        moveJoint(5, self.end, self.motorMsg)
 
         self.motorMsg.data[4] = MOTOR4_ZERO
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(4, self.m4, self.motorMsg)
 
-        self.motorMsg.data[1] = 25                    #move reverse at first
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        self.motorMsg.data[1] = 25                      #move reverse at first
+        moveJoint(1, self.m1, self.motorMsg)
 
-        self.motorMsg.data[2] = int(MOTOR2_HOME /2)    #move 1/2
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        self.motorMsg.data[2] = int(MOTOR2_HOME /2)     #move 1/2
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[3] = int(MOTOR3_HOME/2)      #move 1/2
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(3, self.m3, self.motorMsg)
 
         self.motorMsg.data[2] = MOTOR2_ZERO
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[3] = MOTOR3_ZERO
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(3, self.m3, self.motorMsg)
 
         self.motorMsg.data[1] = MOTOR1_ZERO
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(1, self.m1, self.motorMsg)
         print("Zoering Done")
 
     def deg90(self):
@@ -244,20 +271,16 @@ class Rebearm(Node):
         self.motors_on()
 
         self.motorMsg.data[2] = MOTOR_RIGHT
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[3] = MOTOR_RIGHT
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(3, self.m3, self.motorMsg)
         
         self.motorMsg.data[1] = 0
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(1, self.m1, self.motorMsg)
 
         self.motorMsg.data[0] = MOTOR0_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(0, self.m0, self.motorMsg)
         print("90degree Done")
 
     def picknplace(self, object, down):
@@ -265,63 +288,52 @@ class Rebearm(Node):
         if down == 1:
             #move to pick up postion
             self.motorMsg.data[3] = MOTOR3_PICKUP
-            moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-            sleep(1.0)
+            moveJoint(3, self.m3, self.motorMsg)
 
             self.motorMsg.data[1] = MOTOR1_PICKUP
-            moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-            sleep(0.5)
+            moveJoint(1, self.m1, self.motorMsg)
 
             self.motorMsg.data[4] = MOTOR4_PICKUP
-            moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-            sleep(0.5)
+            moveJoint(4, self.m4, self.motorMsg)
 
         #grap action
         self.motorMsg.data[5] = GRIPPER_CLOSE
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.5)
+        moveJoint(5, self.end, self.motorMsg)
 
         #lift up
         self.motorMsg.data[1] = (MOTOR1_HOME + 10)
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(1, self.m1, self.motorMsg)
 
         self.motorMsg.data[2] = (MOTOR2_HOME + 10)
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(2, self.m2, self.motorMsg)
 
         #move to place position
         if object == 1:
             self.motorMsg.data[0] = MOTOR0_PLACE1
         else:
             self.motorMsg.data[0] = MOTOR0_PLACE2
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(0, self.m0, self.motorMsg)
 
         #move down postion
         self.motorMsg.data[1] = MOTOR1_PICKUP
+        moveJoint(1, self.m1, self.motorMsg)
+
         self.motorMsg.data[3] = MOTOR3_PICKUP
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(3, self.m3, self.motorMsg)
 
         self.motorMsg.data[5] = GRIPPER_OPEN
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(0.3)
-        #place action
+        moveJoint(5, self.end, self.motorMsg)
 
-        #lift up
+        #place action, lift up
         self.motorMsg.data[2] =(MOTOR2_HOME + 10)
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[1] = (MOTOR1_HOME + 10)
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.0)
+        moveJoint(1, self.m1, self.motorMsg)
 
         #Home
         self.motorMsg.data[0] = MOTOR0_HOME
-        moveJoint(self.m0, self.m1, self.m2, self.m3, self.m4, self.end, self.motorMsg)
-        sleep(1.5)
+        moveJoint(0, self.m0, self.motorMsg)
 
 def main(args=None):
     rclpy.init(args=args)

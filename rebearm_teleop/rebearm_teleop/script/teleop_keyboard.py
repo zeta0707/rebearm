@@ -56,7 +56,7 @@ a/d : base(M0), left/light
 w/x : shoulder(M1) move
 j/l : Elbow(M2) move
 i/, : Wrist(M3) move
-g/G : Gripper
+g/G : Gripper close/open
 h   : Move home
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
@@ -109,10 +109,12 @@ def main():
     node = rclpy.create_node('teleop_keyboard_node')        # generate node
 
     anglePub = node.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
-    
+
+    print('Rebearm Teleop Keyboard controller')
     robotarm = Rebearm()
     robotarm.home()
-    print('Rebearm Teleop Keyboard controller')
+    offset = robotarm.get_offsets()
+    print("Offsets:", offset)
 
     status = 0
     control_motor0 = MOTOR0_HOME
@@ -121,6 +123,7 @@ def main():
     control_motor3 = MOTOR3_HOME
     control_motor4 = MOTOR4_HOME
     control_gripper = GRIPPER_OPEN
+    OFF_STEP = 3
 
     motorMsg = Int32MultiArray()
     motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN]
@@ -172,6 +175,52 @@ def main():
                 control_gripper = check_angle_range(control_gripper + ANG_STEP)
                 status = status + 1
 
+            # calibrate M0 offset
+            elif key == '0' or key == ')':           
+                if key == '0':
+                    offset[0] += OFF_STEP
+                else:
+                    offset[0] -= OFF_STEP
+                robotarm.set_offset(0, offset[0])
+                print("offset0:",offset[0])
+                continue
+            # calibrate M1 offset
+            elif key == '1' or key == '!':  
+                if key == '1':       
+                    offset[1]  += OFF_STEP
+                else:
+                    offset[1] -= OFF_STEP
+                robotarm.set_offset(1, offset[1])
+                print("offset1:",offset[1])
+                continue
+            # calibrate M2 offset
+            elif key == '2' or key == '@':  
+                if key == '2':     
+                    offset[2] += OFF_STEP
+                else:
+                    offset[2]-= OFF_STEP
+                robotarm.set_offset(2, offset[2])
+                print("offset2:",offset[2])
+                continue
+            # calibrate M3 offset
+            elif key == '3' or key == '#': 
+                if key == '3':       
+                    offset[3] += OFF_STEP
+                else:
+                    offset[3] -= OFF_STEP
+                robotarm.set_offset(3, offset[3])
+                print("offset3:",offset[3])
+                continue
+            # calibrate M4 offset  
+            elif key == '4' or key == '$':         
+                if key == '4': 
+                    offset[4] += OFF_STEP
+                else:
+                    offset[4] -= OFF_STEP
+                robotarm.set_offset(4, offset[4])
+                print("offset4:",offset[4])
+                continue
+
             elif key == '9':
                 print('90degree position')
                 robotarm.deg90()
@@ -179,7 +228,7 @@ def main():
                 control_motor1 = 0
                 control_motor2 = MOTOR_RIGHT
                 control_motor3 = MOTOR_RIGHT
-                control_motor4 = MOTOR_RIGHT
+                control_motor4 = MOTOR4_HOME
                 control_gripper = GRIPPER_OPEN
                 keystroke = 0
 
