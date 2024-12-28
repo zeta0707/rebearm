@@ -137,9 +137,9 @@ def main():
     try:
         print(msg)
         while(1):
-            rclpy.spin_once(svcSubscriber)
             key = get_key(settings)
             if key == ' ':
+                rclpy.spin_once(svcSubscriber)
                 if mStatus == 0:
                     print('torque off')
                     robotarm.motors_off()
@@ -147,8 +147,8 @@ def main():
                     blob_y = svcSubscriber.blob_y
                     mStatus = 1
                 else:
-                    data = robotarm.readAngle()
                     print('torque on')
+                    data = robotarm.readAngle()
                     robotarm.motors_on()
                     mStatus = 0
 
