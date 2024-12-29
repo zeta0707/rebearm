@@ -1,7 +1,6 @@
 yolo_ros_node:
   ros__parameters:
     yolo_model: "rebearm11n.pt"
-    #yolo_model: "yolo11n.pt"
     input_rgb_topic: "/image_raw"
     input_depth_topic: "/camera/depth/points"
     subscribe_depth: False

@@ -117,6 +117,8 @@ def main():
     node = rclpy.create_node('dataset_node')        # generate node
 
     robotarm = Rebearm()
+    offset = robotarm.get_offsets()
+    print("Offsets:", offset)
     robotarm.home()
     print('rebearm IK dataset collector')
 
@@ -132,7 +134,7 @@ def main():
     
     rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_ml/rebearm_ml/')
     fhandle = open(rosPath + 'kinematics_pose.csv', 'w')
-    fhandle.write('x+1,y+1,data[0],data[1],data[2],data[3]\n')
+    fhandle.write('x,y+1,data[0],data[1],data[2],data[3]\n')
 
     try:
         print(msg)
@@ -166,7 +168,7 @@ def main():
             if status == 1:
                 if mStatus == 0:
                     print('x= %.2f, y=%.2f, M0= %d, M1=%d, M2=%d, M3=%d' %(blob_x, blob_y, data[0], data[1], data[2], data[3]))
-                    fhandle.write(str(blob_x+1.0) + ',' + str(blob_y+1.0) + ',' + str(data[0]) + ',' + str(data[1]) + ',' + str(data[2])
+                    fhandle.write(str(blob_x) + ',' + str(blob_y+1.0) + ',' + str(data[0]) + ',' + str(data[1]) + ',' + str(data[2])
                                 + ',' + str(data[3]) + '\n')
                     fhandle.flush()
                     #move home to collect more data, pickup action first

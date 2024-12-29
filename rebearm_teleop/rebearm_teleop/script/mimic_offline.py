@@ -51,7 +51,9 @@ def main():
     node = rclpy.create_node('mimic_offline_node')        # generate node
     robotarm = Rebearm()
     robotarm.home()
-
+    offset = robotarm.get_offsets()
+    print("Offsets:", offset)
+    
     print('Rebearm mimic human operation')
 
     try:

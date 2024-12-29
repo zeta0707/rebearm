@@ -1,4 +1,8 @@
 /**:
   ros__parameters:
-    DETECT_CLASS1 : "watermelon"
-    DETECT_CLASS2 : "pineapple"
+# yolo inferenece target
+    det_class1 : "watermelon"
+    det_class2 : "pineapple"
+# a*x + b for angle_x
+    k_a : -29.000
+    k_b : 1.0

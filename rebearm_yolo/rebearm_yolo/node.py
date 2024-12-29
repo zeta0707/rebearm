@@ -110,7 +110,6 @@ class YoloROS(Node):
             self.detection_msg.confidence   = []
         
             for bbox, cls, conf in zip(self.result[0].boxes.xywh, self.result[0].boxes.cls, self.result[0].boxes.conf):
-
                 self.detection_msg.bbx_center_x.append(int(bbox[0]))
                 self.detection_msg.bbx_center_y.append(int(bbox[1]))
                 self.detection_msg.bbx_size_w.append(int(bbox[2]))

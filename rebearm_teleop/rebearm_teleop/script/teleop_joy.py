@@ -99,7 +99,9 @@ class TeleopJoyNode(Node):
 
         self.robotarm = Rebearm()
         self.robotarm.home()
-
+        offset = self.robotarm.get_offsets()
+        print("Offsets:", offset)
+        
         self.motorMsg = Int32MultiArray()
         self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN]
         setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)

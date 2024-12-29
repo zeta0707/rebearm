@@ -78,7 +78,9 @@ class HumanGuideNode(Node):
 
         self.robotarm = Rebearm()
         self.robotarm.home()
-
+        offset = self.robotarm.get_offsets()
+        print("Offsets:", offset)
+        
     def cb_angles(self, msg):
         control_motor0 = msg.data[0]
         control_motor1 = msg.data[1]

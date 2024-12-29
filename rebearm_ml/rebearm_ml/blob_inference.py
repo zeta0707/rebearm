@@ -62,7 +62,22 @@ MAX_Y = 3
 class IKnetBall(Node):
     def __init__(self):
         super().__init__('nn_blob_node')
+        # Declare string parameters that can be overridden
+        self.declare_parameter('det_class1', 'watermelon')
+        self.declare_parameter('det_class2', 'pineapple')
+        self.declare_parameter('k_a', 0.0)
+        self.declare_parameter('k_b', 0.0)
+        
         self.get_logger().info("Setting Up the Node...")
+        self.det_class1 = self.get_parameter('det_class1').get_parameter_value().string_value
+        self.det_class2 = self.get_parameter('det_class2').get_parameter_value().string_value
+        self.k_a = self.get_parameter('k_a').get_parameter_value().double_value
+        self.k_b = self.get_parameter('k_b').get_parameter_value().double_value
+        
+        print('DETECT_CLASS 1: %s, DETECT_CLASS 2: %s, k_a: %.2f, k_b: %.2f'%
+            (self.det_class1, self.det_class2, self.k_a, self.k_b)
+        )
+        atexit.register(self.set_park)
 
         self.blob_x = 0.0
         self.blob_y = 0.0
@@ -80,12 +95,12 @@ class IKnetBall(Node):
         self.timer = self.create_timer(0.1, self.node_callback)
 
         self.robotarm = Rebearm()
-
+        offset = self.robotarm.get_offsets()
+        print("Offsets:", offset)
+        
         self.armStatus = 'HOMING'
         self.robotarm.home()
         self.armStatus = 'SEARCHING'
-
-        atexit.register(self.set_park)
 
         rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_ml/rebearm_ml/')
         modely = rosPath + "iknet_y.pth"
@@ -122,9 +137,8 @@ class IKnetBall(Node):
             detect_object = 1           #blob detects only one object, then it's 1
             self.armStatus = 'PICKUP'
             #caculate angles from linear equation
-            input_ = self.blob_x + 1.0
-            outputx = K_a*(self.blob_x + 1.0) + K_b
-            print(f"input: {input_}")
+            outputx = self.k_a*self.blob_x + self.k_b
+            print(f"input: {self.blob_x}")
             print(f"output: {outputx}")
 
             #caculate angles from IKNet

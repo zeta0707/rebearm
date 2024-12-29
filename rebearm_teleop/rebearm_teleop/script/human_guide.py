@@ -71,7 +71,9 @@ class HumanGuideNode(Node):
 
         self.robotarm = Rebearm()
         self.robotarm.home()
-        
+        offset = self.robotarm.get_offsets()
+        print("Offsets:", offset)
+
         # timer callback
         self.timer = self.create_timer(TIMER_HGUIDE, self.cb_timer)
 

@@ -64,15 +64,18 @@ class ChaseMoveit(Node):
             parameters=[
            ])
         self.get_logger().info("Setting Up the Node...")
-
+        atexit.register(self.set_park)
+        
         self.robotarm = Rebearm()
-        #can't move direct to zero, so home position first
+        offset = self.robotarm.get_offsets()
+        print("Offsets:", offset)
+        #can't move direct to zero, so home position first, need to fix later
         self.robotarm.home()
         self.robotarm.zero()
 
         self.motorMsg = Int32MultiArray()
         setArmAgles(self.motorMsg, MOTOR0_ZERO, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, MOTOR4_ZERO, GRIPPER_OPEN)
-        atexit.register(self.set_park)
+       
         self._joint_sub = self.create_subscription(JointState, '/joint_states', self.moveit_callback, qos_profile_sensor_data)
         self.get_logger().info("Moveit Subscriber Awaked!! Waiting for Moveit Planning...")
 

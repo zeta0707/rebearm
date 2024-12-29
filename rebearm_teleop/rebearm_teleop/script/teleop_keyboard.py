@@ -182,6 +182,7 @@ def main():
                 else:
                     offset[0] -= OFF_STEP
                 robotarm.set_offset(0, offset[0])
+                robotarm.save_offset(0)
                 print("offset0:",offset[0])
                 continue
             # calibrate M1 offset
@@ -191,6 +192,7 @@ def main():
                 else:
                     offset[1] -= OFF_STEP
                 robotarm.set_offset(1, offset[1])
+                robotarm.save_offset(1)
                 print("offset1:",offset[1])
                 continue
             # calibrate M2 offset
@@ -200,6 +202,7 @@ def main():
                 else:
                     offset[2]-= OFF_STEP
                 robotarm.set_offset(2, offset[2])
+                robotarm.save_offset(2)
                 print("offset2:",offset[2])
                 continue
             # calibrate M3 offset
@@ -209,6 +212,7 @@ def main():
                 else:
                     offset[3] -= OFF_STEP
                 robotarm.set_offset(3, offset[3])
+                robotarm.save_offset(3)
                 print("offset3:",offset[3])
                 continue
             # calibrate M4 offset  
@@ -218,6 +222,7 @@ def main():
                 else:
                     offset[4] -= OFF_STEP
                 robotarm.set_offset(4, offset[4])
+                robotarm.save_offset(4)
                 print("offset4:",offset[4])
                 continue
 

@@ -43,6 +43,9 @@ class Joint:
     def set_offset(self, deviation):
         controller.set_position_offset(self.id, deviation)
 
+    def save_offset(self):
+        controller.save_position_offset(self.id)
+
     def get_offset(self):
         try:
             return controller.get_position_offset(self.id)
@@ -78,15 +81,39 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
 
 def moveJoint(id, motor, mMSG):
     #degree -> motor value, -120~120 => 0~1000
-    if mMSG.data[id] != MOTOR_NOMOVE:
-        #print("target:", mMSG.data[id])
-        motor.move_to(int(mMSG.data[id]*500.0/120.0 + 500.0))
-        #wait until 4 degree
+    CMD_TIMEOUT = 0.7
+    tar_ang = mMSG.data[id]
+    count = 0
+
+    tar_ang_val = int(mMSG.data[id]*500.0/120.0 + 500.0)
+    #print('id: %d, tar:%d'%(id, tar_ang))
+
+    if tar_ang == MOTOR_NOMOVE:
+        return
+    #gripper, don't read angle
+    if (id == 5):
+        motor.move_to(tar_ang_val)
+        sleep(1.0)
+    else:
+        start_time = time()
+        motor.move_to(tar_ang_val)
+        sleep(0.1)
         while True:
-            ang = int((float(motor.get_pos()) - 500.0)*120.0/500.0) 
-            #print(ang, ',', sep='', end='', flush=True)
-            if abs(ang - mMSG.data[id]) < 4:
-                #print("Done")
+            if (time() - start_time) > CMD_TIMEOUT:
+                print(id, "!!!motor slow!!!")
+                start_time = time()
+                count = count + 1
+                if (count == 3):
+                    print(id, "!!!motor stuck!!!")
+                    break
+                else:
+                    motor.move_to(tar_ang_val + count)
+                    continue
+
+            cur_ang = int((float(motor.get_pos()) - 500.0)*120.0/500.0) 
+            #print(cur_ang, ',', sep='', end='', flush=True)
+            if abs(cur_ang - tar_ang) < 5:
+                #print("Move done")
                 return
 
 def moveJointAll(m0, m1, m2, m3, m4, end, mMSG):
@@ -167,8 +194,18 @@ class Rebearm(Node):
             self.m3.set_offset(deviation)
         if (id == 4):
             self.m4.set_offset(deviation)
-        if (id == 5):
-            self.end.set_offset(deviation)
+
+    def save_offset(self, id):
+        if (id == 0):
+            self.m0.save_offset()
+        elif (id == 1):
+            self.m1.save_offset()
+        elif (id == 2):
+            self.m2.save_offset()
+        if (id == 3):
+            self.m3.save_offset()
+        if (id == 4):
+            self.m4.save_offset()
 
     def park(self):
         print("Parking...")
@@ -217,18 +254,21 @@ class Rebearm(Node):
 
         self.motorMsg.data[3] = MOTOR3_HOME + 15
         moveJoint(3, self.m3, self.motorMsg)
-        
+
+        self.motorMsg.data[2] = MOTOR2_HOME - 10
+        moveJoint(2, self.m2, self.motorMsg)
+
         self.motorMsg.data[1] = MOTOR1_HOME + 15
         moveJoint(1, self.m1, self.motorMsg)
-
-        self.motorMsg.data[2] = MOTOR2_HOME
-        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[3] = MOTOR3_HOME
         moveJoint(3, self.m3, self.motorMsg)
 
         self.motorMsg.data[4] = MOTOR4_HOME
         moveJoint(4, self.m4, self.motorMsg)
+
+        self.motorMsg.data[2] = MOTOR2_HOME
+        moveJoint(2, self.m2, self.motorMsg)
 
         self.motorMsg.data[1] = MOTOR1_HOME
         moveJoint(1, self.m1, self.motorMsg)
