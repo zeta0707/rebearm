@@ -132,8 +132,8 @@ class IKnetYolo(Node):
         for box in message.class_id:
             print(message.full_class_list[box])
             if (message.full_class_list[box] == self.det_class1) or (message.full_class_list[box] == self.det_class2):
-                self.blob_x = float(message.bbx_center_x[idx]/PICTURE_SIZE_X) - 1.0
-                self.blob_y = float(message.bbx_center_y[idx]/PICTURE_SIZE_Y) - 1.0
+                self.blob_x = float(message.bbx_center_x[idx])/PICTURE_SIZE_X*2.0 - 1.0
+                self.blob_y = float(message.bbx_center_y[idx])/PICTURE_SIZE_Y*2.0 - 1.0
                 self._time_detected = time()
 
                 if message.full_class_list[box] == self.det_class1:

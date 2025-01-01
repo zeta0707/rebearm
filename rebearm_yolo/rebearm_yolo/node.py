@@ -49,8 +49,12 @@ class YoloROS(Node):
         # Initialize YOLO model
         rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/')
         yolomodel = rosPath + self.yolo_model
-
         self.model = YOLO(yolomodel)
+
+        #please run only once to convert from pt to ncnn
+        #self.model.export(format="ncnn")    # create ncnn model   
+        #yolomodel = rosPath + "rebearm11n_ncnn_model" 
+
         self.model.fuse()
 
         self.subscriber_qos_profile = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -85,7 +89,6 @@ class YoloROS(Node):
         start = time.time_ns()
 
         self.input_image = self.bridge.imgmsg_to_cv2(rgb_msg, desired_encoding="bgr8")
-
         self.result = self.model.predict(source = self.input_image,
                                          conf=self.threshold,
                                          device=self.device,
