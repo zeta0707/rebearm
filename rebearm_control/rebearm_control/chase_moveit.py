@@ -74,7 +74,7 @@ class ChaseMoveit(Node):
         self.robotarm.zero()
 
         self.motorMsg = Int32MultiArray()
-        setArmAgles(self.motorMsg, MOTOR0_ZERO, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, MOTOR4_ZERO, GRIPPER_OPEN)
+        setArmAgles(self.motorMsg, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, MOTOR4_ZERO, MOTOR5_ZERO, GRIPPER_OPEN)
        
         self._joint_sub = self.create_subscription(JointState, '/joint_states', self.moveit_callback, qos_profile_sensor_data)
         self.get_logger().info("Moveit Subscriber Awaked!! Waiting for Moveit Planning...")

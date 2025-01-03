@@ -49,10 +49,10 @@ msg = """
 Control Your Robot!
 ---------------------------
 Moving around:
-Left lever left/right:  Base(M0), left/light
-Left lever up/down:     shoulder(M1) move
-Right lever up/down:    Elbow(M2) move
-Right lever left/right: Wrist(M3) move
+Left lever left/right:  Base(M1), left/light
+Left lever up/down:     shoulder(M2) move
+Right lever up/down:    Elbow(M3) move
+Right lever left/right: Wrist(M4) move
 
 X   : gripper open/close toggle
 L-1 : 90 position, motor assemble check
@@ -87,11 +87,11 @@ class TeleopJoyNode(Node):
         self.chatCount= 0
         self.mode_button_last = 0
 
-        self.control_motor0 = MOTOR0_HOME
         self.control_motor1 = MOTOR1_HOME
         self.control_motor2 = MOTOR2_HOME
         self.control_motor3 = MOTOR3_HOME
         self.control_motor4 = MOTOR4_HOME
+        self.control_motor5 = MOTOR5_HOME
         self.control_gripper = GRIPPER_OPEN
         self.keystroke = 0
 
@@ -103,8 +103,8 @@ class TeleopJoyNode(Node):
         print("Offsets:", offset)
         
         self.motorMsg = Int32MultiArray()
-        self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN]
-        setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)
+        self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
+        setArmAgles(self.motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
 
         # generate publisher for 'joy'
         self.sub = self.create_subscription(Joy, 'joy', self.cb_joy, qos_profile_sensor_data)
@@ -124,11 +124,11 @@ class TeleopJoyNode(Node):
         if joymsg.buttons[6] == 1 and self.mode_button_last == 0:
             print('Home position')
             self.robotarm.home()
-            self.control_motor0 = MOTOR0_HOME
             self.control_motor1 = MOTOR1_HOME
             self.control_motor2 = MOTOR2_HOME
             self.control_motor3 = MOTOR3_HOME
             self.control_motor4 = MOTOR4_HOME
+            self.control_motor5 = MOTOR5_HOME
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[6]
@@ -137,11 +137,11 @@ class TeleopJoyNode(Node):
         elif joymsg.buttons[7] == 1 and self.mode_button_last == 0:
             print('zero position')
             self.robotarm.zero()
-            self.control_motor0 = MOTOR0_HOME
-            self.control_motor1 = 0
+            self.control_motor1 = MOTOR1_HOME
             self.control_motor2 = 0
             self.control_motor3 = 0
-            self.control_motor4 = MOTOR4_ZERO
+            self.control_motor4 = 0
+            self.control_motor5 = MOTOR5_ZERO
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[7]
@@ -150,11 +150,11 @@ class TeleopJoyNode(Node):
         elif joymsg.buttons[4] == 1 and self.mode_button_last == 0:
             print('90degree position')
             self.robotarm.deg90()
-            self.control_motor0 = MOTOR0_HOME
-            self.control_motor1 = 0
-            self.control_motor2 = MOTOR_RIGHT
+            self.control_motor1 = MOTOR1_HOME
+            self.control_motor2 = 0
             self.control_motor3 = MOTOR_RIGHT
-            self.control_motor4 = MOTOR4_HOME
+            self.control_motor4 = MOTOR_RIGHT
+            self.control_motor5 = MOTOR5_HOME
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[4]
@@ -177,17 +177,17 @@ class TeleopJoyNode(Node):
             self.keystroke = self.keystroke + 1
             #update angle, but not move yet
             if (joymsg.axes[0] != 0):
-                self.control_motor0 += int(joymsg.axes[0] * self.step_deg + 0.5)
-                self.control_motor0 = int(clamp(self.control_motor0, MOTOR0_MIN, MOTOR0_MAX))
-            elif joymsg.axes[1] != 0:
-                self.control_motor1 += int(joymsg.axes[1] * self.step_deg + 0.5)
+                self.control_motor1 += int(joymsg.axes[0] * self.step_deg + 0.5)
                 self.control_motor1 = int(clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX))
-            elif joymsg.axes[3] != 0:
-                self.control_motor2 += int(joymsg.axes[3] * self.step_deg + 0.5)
+            elif joymsg.axes[1] != 0:
+                self.control_motor2 += int(joymsg.axes[1] * self.step_deg + 0.5)
                 self.control_motor2 = int(clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX))
-            elif joymsg.axes[2] != 0:
-                self.control_motor3 += int(joymsg.axes[2] * self.step_deg + 0.5)
+            elif joymsg.axes[3] != 0:
+                self.control_motor3 += int(joymsg.axes[3] * self.step_deg + 0.5)
                 self.control_motor3 = int(clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX))
+            elif joymsg.axes[2] != 0:
+                self.control_motor4 += int(joymsg.axes[2] * self.step_deg + 0.5)
+                self.control_motor4 = int(clamp(self.control_motor4, MOTOR4_MIN, MOTOR4_MAX))
 
             #over PER, then wait PER*CONT_JOY
             if (self.keystroke < CONT_JOY):
@@ -208,10 +208,10 @@ class TeleopJoyNode(Node):
             return
 
         self.prev_time = time()
-        setArmAgles(self.motorMsg, self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_gripper)
+        setArmAgles(self.motorMsg, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_motor5, self.control_gripper)
         self.robotarm.run(self.motorMsg)
         self.anglePub.publish(self.motorMsg)
-        print('M0=%d, M1=%d, M2=%d, M3=%d, M4=%d, G=%d'%(self.control_motor0, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_gripper))
+        print('M1= %d, M2=%d, M3= %d, M4=%d, M5=%d, G=%d'%(self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_motor5, self.control_gripper))
         self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) + ',' + str(self.motorMsg.data[3])
                             + ',' + str(self.motorMsg.data[4]) + ',' + str(self.motorMsg.data[5])+ ',' + str(timediff) + '\n')
         self.fhandle.flush()

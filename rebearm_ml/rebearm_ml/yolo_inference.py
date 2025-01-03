@@ -92,7 +92,7 @@ class IKnetYolo(Node):
         self.detect_object = 0
 
         self.motorMsg = Int32MultiArray()
-        setArmAgles(self.motorMsg, MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, GRIPPER_OPEN)
+        setArmAgles(self.motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
         self.get_logger().info("Setting Up control node...")
 
         # Create a timer that will gate the node actions twice a second
@@ -203,11 +203,11 @@ class IKnetYolo(Node):
             self.reset_avoid()
 
     def reset_avoid(self):
-        self.motorMsg.data[0] = MOTOR0_HOME
-        self.motorMsg.data[1] = MOTOR1_HOME
-        self.motorMsg.data[2] = MOTOR2_HOME
-        self.motorMsg.data[3] = MOTOR3_HOME
-        self.motorMsg.data[4] = MOTOR4_HOME
+        self.motorMsg.data[0] = MOTOR1_HOME
+        self.motorMsg.data[1] = MOTOR2_HOME
+        self.motorMsg.data[2] = MOTOR3_HOME
+        self.motorMsg.data[3] = MOTOR4_HOME
+        self.motorMsg.data[4] = MOTOR5_HOME
         self.robotarm.run(self.motorMsg)
         sleep(1.0)
         self.get_logger().info("reset avoid")

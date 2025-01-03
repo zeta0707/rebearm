@@ -72,7 +72,7 @@ class HumanGuideNode(Node):
 
         self.angleSub = self.create_subscription(Int32MultiArray, 'motor_angles', self.cb_angles, qos_profile_sensor_data)
         self.motorMsg = Int32MultiArray()
-        self.motorMsg.data = [MOTOR0_HOME, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, GRIPPER_OPEN]
+        self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
 
         atexit.register(self.set_park)
 
@@ -82,15 +82,15 @@ class HumanGuideNode(Node):
         print("Offsets:", offset)
         
     def cb_angles(self, msg):
-        control_motor0 = msg.data[0]
-        control_motor1 = msg.data[1]
-        control_motor2 = msg.data[2]
-        control_motor3 = msg.data[3]
-        control_motor4 = msg.data[4]
+        control_motor1 = msg.data[0]
+        control_motor2 = msg.data[1]
+        control_motor3 = msg.data[2]
+        control_motor4 = msg.data[3]
+        control_motor5 = msg.data[4]
         control_gripper = msg.data[5]
-        setArmAgles(self.motorMsg, control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper)
+        setArmAgles(self.motorMsg, control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper)
         self.robotarm.run(self.motorMsg)
-        print('M0= %d, M1=%d, M2= %d, M3=%d, G=%d'%(control_motor0, control_motor1, control_motor2, control_motor3, control_motor4, control_gripper))
+        print('M1= %d, M2=%d, M3= %d, M4=%d, M5=%d, G=%d'%(control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper))
 
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')
