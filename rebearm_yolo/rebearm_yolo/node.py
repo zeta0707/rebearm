@@ -5,7 +5,7 @@ from message_filters import Subscriber
 from message_filters import ApproximateTimeSynchronizer
 
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, qos_profile_sensor_data
 
 from sensor_msgs.msg import Image, PointCloud2
 from rebearm_interfaces.msg import Detections
@@ -68,16 +68,16 @@ class YoloROS(Node):
             self.synchornizer = ApproximateTimeSynchronizer([self.rgb_message_filter, self.depth_message_filter], 10, 1)
             self.synchornizer.registerCallback(self.sync_callback)
 
-            self.publisher_depth  = self.create_publisher(PointCloud2, self.depth_topic, 10)
+            self.publisher_depth  = self.create_publisher(PointCloud2, self.depth_topic, qos_profile_sensor_data)
 
         else:
             self.subscription = self.create_subscription(Image, self.input_rgb_topic, self.image_callback, qos_profile=self.subscriber_qos_profile)
         
-        self.publisher_results  = self.create_publisher(Detections, self.detailed_topic, 10)
-        self.publisher_rgb      = self.create_publisher(Image, self.rgb_topic, 10)
+        self.publisher_results  = self.create_publisher(Detections, self.detailed_topic, qos_profile_sensor_data)
+        self.publisher_rgb      = self.create_publisher(Image, self.rgb_topic, qos_profile_sensor_data)
 
         if self.publish_annotated_image:
-            self.publisher_image    = self.create_publisher(Image, self.annotated_topic, 10)
+            self.publisher_image    = self.create_publisher(Image, self.annotated_topic, qos_profile_sensor_data)
 
         self.counter = 0
         self.time = 0

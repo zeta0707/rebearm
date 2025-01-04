@@ -6,6 +6,7 @@ import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from rclpy.logging import get_logger
+from rclpy.qos import qos_profile_sensor_data
 
 class CameraeNode(Node):
     def __init__(self):
@@ -20,7 +21,7 @@ class CameraeNode(Node):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.cap.set(cv2.CAP_PROP_FPS, 30)
-        self.image_pub = self.create_publisher(Image, 'image_raw', 10)
+        self.image_pub = self.create_publisher(Image, 'image_raw', qos_profile_sensor_data)
         self.bridge = CvBridge()
         self.get_logger().info("Camera Node created")
 

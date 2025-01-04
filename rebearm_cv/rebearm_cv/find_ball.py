@@ -59,9 +59,9 @@ class BlobDetector(Node):
         self._t0 = time.time()
 
         print (">> Publishing image to topic image_blob")
-        self.image_pub = self.create_publisher(Image, "/blob/image_blob", 10)
-        self.mask_pub = self.create_publisher(Image, "/blob/image_mask", 10)
-        self.blob_pub = self.create_publisher(PointStamped, "/blob/point_blob", 10)
+        self.image_pub = self.create_publisher(Image, "/blob/image_blob", qos_profile_sensor_data)
+        self.mask_pub = self.create_publisher(Image, "/blob/image_mask", qos_profile_sensor_data)
+        self.blob_pub = self.create_publisher(PointStamped, "/blob/point_blob", qos_profile_sensor_data)
 
         self.bridge = CvBridge()
         self.image_sub = self.create_subscription(Image, "/image_raw",self.callback, qos_profile_sensor_data)
