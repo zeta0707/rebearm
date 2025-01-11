@@ -62,21 +62,27 @@ MAX_Y = 3
 class IKnetBall(Node):
     def __init__(self):
         super().__init__('nn_blob_node')
+        
         # Declare string parameters that can be overridden
-        self.declare_parameter('det_class1', 'watermelon')
-        self.declare_parameter('det_class2', 'pineapple')
+        self.declare_parameter('det_class1', 'cookie')
+        self.declare_parameter('det_class2', 'cupcake')
+        self.declare_parameter('det_class3', 'donut')
+        self.declare_parameter('det_class4', 'shortcake')
         self.declare_parameter('k_a', 0.0)
         self.declare_parameter('k_b', 0.0)
         
         self.get_logger().info("Setting Up the Node...")
         self.det_class1 = self.get_parameter('det_class1').get_parameter_value().string_value
         self.det_class2 = self.get_parameter('det_class2').get_parameter_value().string_value
+        self.det_class3 = self.get_parameter('det_class3').get_parameter_value().string_value
+        self.det_class4 = self.get_parameter('det_class4').get_parameter_value().string_value
         self.k_a = self.get_parameter('k_a').get_parameter_value().double_value
         self.k_b = self.get_parameter('k_b').get_parameter_value().double_value
         
-        print('DETECT_CLASS 1: %s, DETECT_CLASS 2: %s, k_a: %.2f, k_b: %.2f'%
-            (self.det_class1, self.det_class2, self.k_a, self.k_b)
+        print('DETECT_CLASS1: %s, DETECT_CLASS2: %s, DETECT_CLASS3: %s, DETECT_CLASS4: %s'%
+            (self.det_class1, self.det_class2, self.det_class3, self.det_class4)
         )
+        print('k_a: %.2f, k_b: %.2f'%(self.k_a, self.k_b))
         atexit.register(self.set_park)
 
         self.blob_x = 0.0

@@ -20,26 +20,37 @@ def generate_launch_description():
     # Declare the parameter you want to override
     param_arg1 = DeclareLaunchArgument(
         'det_class1',                   # actual parameter name
-        default_value='watermelon',     # Default value
+        default_value='cookie',         # Default value
         description='Detect class 1'
     )
-
     # Declare the parameter you want to override
     param_arg2 = DeclareLaunchArgument(
         'det_class2',                   # actual parameter name
-        default_value='pineapple',      # Default value
+        default_value='cupcake',        # Default value
         description='Detect class 2'
+    )
+    # Declare the parameter you want to override
+    param_arg3 = DeclareLaunchArgument(
+        'det_class3',                   # actual parameter name
+        default_value='donut',          # Default value
+        description='Detect class 3'
+    )
+    # Declare the parameter you want to override
+    param_arg4 = DeclareLaunchArgument(
+        'det_class4',                   # actual parameter name
+        default_value='shortcake',      # Default value
+        description='Detect class 4'
     )
 
     # Declare the parameter you want to override
-    param_arg3 = DeclareLaunchArgument(
+    param_arg5 = DeclareLaunchArgument(
         'k_a',                      # actual parameter name
         default_value='-29.0',      # Default value
         description='slope'
     )
 
     # Declare the parameter you want to override
-    param_arg4 = DeclareLaunchArgument(
+    param_arg6 = DeclareLaunchArgument(
         'k_b',                    # actual parameter name
         default_value='1.0',      # Default value
         description='offset'
@@ -64,5 +75,7 @@ def generate_launch_description():
         param_arg2,  # Add the launch argument
         param_arg3,  # Add the launch argument
         param_arg4,  # Add the launch argument
+        param_arg5,  # Add the launch argument
+        param_arg6,  # Add the launch argument
         node
     ])

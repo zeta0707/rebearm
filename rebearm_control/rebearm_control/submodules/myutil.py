@@ -357,8 +357,13 @@ class Rebearm(Node):
         #move to place position
         if object == 1:
             self.motorMsg.data[0] = MOTOR1_PLACE1
-        else:
+        elif object == 2:
             self.motorMsg.data[0] = MOTOR1_PLACE2
+        elif object == 3:
+            self.motorMsg.data[0] = MOTOR1_PLACE3
+        else:
+            self.motorMsg.data[0] = MOTOR1_PLACE4
+        
         moveJoint(1, self.m1, self.motorMsg)
 
         #move down postion
