@@ -103,11 +103,11 @@ def moveJoint(id, joint, mMSG):
         sleep(0.1)
         while True:
             if (time() - start_time) > CMD_TIMEOUT:
-                print(id, "!!!motor slow!!!")
+                #print(id, "!!!motor slow!!!")
                 start_time = time()
                 count = count + 1
                 if (count == 3):
-                    print(id, "!!!motor stuck!!!")
+                    #print(id, "!!!motor stuck!!!")
                     break
                 else:
                     joint.move_to(tar_ang_val + count)

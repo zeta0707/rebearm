@@ -1,10 +1,10 @@
 # rebearm: 5DoF + 1 Gripper/AirPump DIY Arm
 **This project is about ROS2 Package for Robot Arm**  
-**Under construnction**   
-
 Robot 3D model, BOM: Byungki    
 Circuit: Byungki, ZETA7      
 ROS code: ZETA7   
+
+## !!! Under construnction!!! ## 
 
 ## Test System information
 Rasberry Pi5     
@@ -80,15 +80,15 @@ Control Robot Arm with gamepad/jostick
 cd {$workspace_path}
 $ ros2 launch monicar2_teleop joy_all.launch.py
 
-Left Stick left/right:  Base(M0), left/light
-Left Stick up/down:     shoulder(M1) move
-Right Stick up/down:    Elbow(M2) move
-Right Stick left/right: Wrist(M3) move
+Left lever left/right:  Base(M1), left/light
+Left lever up/down:     shoulder(M2) move
+Right lever up/down:    Elbow(M3) move
+Right lever left/right: Wrist(M4) move
 
-'X' : gripper open/close
-'A' : Change led
-'B' : Play buzzer song
-'Y' : Play OLED animation
+X   : gripper open/close toggle
+L-1 : 90 position, motor assemble check
+L-2 : Move home
+R-2 : zero position, motor assemble check
 ```
 
 ### **Play with keyboard**  
@@ -101,15 +101,14 @@ Control Robot Arm with keyboard
 cd {$workspace_path}
 $ ros2 run rebearm_teleop teleop_keyboard
 
-a/d : base(M0), left/light
-w/x : shoulder(M1) move
-q/z : Elbow(M2) move
-e/c : Wrist(M3) move
-
-l: Change led
-u: play buzzer song
-o: OLED animation
-i: Motor mode set/init
+a/d : base(M1), left/light
+w/x : shoulder(M2) move
+j/l : Elbow(M3) move
+i/, : Wrist(M4) move
+g/G : Gripper close/open
+h   : Move home
+9   : 90 position, motor assemble check
+z   : zero position, motor assemble check
 ```
 
 ### **Mimic teleop**  

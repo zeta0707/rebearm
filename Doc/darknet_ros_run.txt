@@ -1,7 +1,0 @@
-## for easy running ##
-
-#terminal #1, #object detect using Yolo_v4
-jetson@nano:~/ros2_ws$ ros2 launch darknet_ros yolov8-rebearm.launch.py
-
-#terminal #2,camera publish, object -> start or stop
-jetson@nano:~/ros2_ws$ ros2 launch rebearm_control yolo_all.launch.py
