@@ -57,9 +57,19 @@
 
   <xacro:property name="width5"    value="0.045" />  <!-- Square dimensions (widthxwidth) -->
   <xacro:property name="height5"   value="0.95" />   <!-- Link 5, blue -->
-  <xacro:property name="offsetx45" value="-0.120" />  <!-- Link position from previous link -->
+  <xacro:property name="offsetx45" value="-0.120" /> <!-- Link position from previous link -->
   <xacro:property name="offsety45" value="-0.230" />
   <xacro:property name="offsetz45" value="0.020" />
+
+  <xacro:property name="offsetx6"  value="0.000" />  <!-- joint6 location x,y,z on link5-->
+  <xacro:property name="offsety6"  value="-0.120" />     
+  <xacro:property name="offsetz6"  value="0.195" />
+
+  <xacro:property name="width6"    value="0.045" />  <!-- Square dimensions (widthxwidth) -->
+  <xacro:property name="height6"   value="0.95" />   <!-- Link 6, blue -->
+  <xacro:property name="offsetx56" value="-0.120" /> <!-- Link position from previous link -->
+  <xacro:property name="offsety56" value="-0.180" />
+  <xacro:property name="offsetz56" value="-0.180" />
 
   <xacro:property name="axel_offset" value="0.0" />  <!-- Space btw top of beam and the each joint -->
 
@@ -92,7 +102,7 @@
     <origin xyz="${offsetx1} ${offsety1} ${offsetz1}" rpy="0.0 0.0 0.0"/>
     <axis xyz="0 0 1"/>
     <dynamics damping="0.7"/>
-    <limit velocity="4.8" effort="1" lower="${-pi*0.33}" upper="${pi*0.33}" />
+    <limit velocity="4.8" effort="1" lower="-1.57" upper="1.57" />
   </joint>
 
   <!-- Link 1-->
@@ -127,7 +137,7 @@
     <origin xyz="${offsetx2} ${offsety2} ${offsetz2}" rpy="0.0 0.0 0.0"/>
     <filename xyz="-1 0 0"/>
     <dynamics damping="0.7"/>
-    <limit velocity="4.8" effort="1" lower="${-pi}" upper="${pi}" />
+    <limit velocity="4.8" effort="1" lower="0.52" upper="-0.105" />
   </joint>
 
   <!-- Link 2-->
@@ -164,7 +174,7 @@
     <origin xyz="${offsetx3} ${offsety3} ${offsetz3}" rpy="0.0 0.0 0.0"/>
     <axis xyz="1 0 0"/>
     <dynamics damping="0.7"/>
-    <limit velocity="4.8" effort="1" lower="${-pi}" upper="${pi}" />
+    <limit velocity="4.8" effort="1" lower="-0.78" upper="-2.09" />
   </joint>
 
   <!-- Link 3 -->
@@ -201,7 +211,7 @@
     <child link="${prefix}link4" />
     <axis xyz="1 0 0"/>
     <dynamics damping="0.7"/>
-    <limit velocity="4.8" effort="1" lower="${-pi}" upper="${pi}" />
+    <limit velocity="4.8" effort="1" lower="-0.87" upper="-2.09" />
   </joint>
 
   <!-- Link 4 -->
@@ -239,10 +249,10 @@
     <child link="${prefix}link5" />
     <axis xyz="0 0 1"/>
     <dynamics damping="0.7"/>
-    <limit velocity="4.8" effort="1" lower="${-pi}" upper="${pi}" />
+    <limit velocity="4.8" effort="1" lower="0.0" upper="${-pi*0.5}" />
   </joint>
 
-  <!-- Link 5, gripper -->
+  <!-- Link 5, gripper base -->
   <link name="${prefix}link5">
   <collision>
     <origin xyz="${offsetx45} ${offsety45} ${offsetz45}" rpy="0.0 0.0 0.0"/>
@@ -255,6 +265,43 @@
     <origin xyz="${offsetx45} ${offsety45} ${offsetz45}" rpy="0.0 0.0 0.0 "/>
     <geometry>
       <mesh filename="package://rebearm_description/meshes/URDF_joint5.stl" scale="0.005 0.005 0.005" />
+    </geometry>
+    <material name="blue"/>
+  </visual>
+
+  <inertial>
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <mass value="${mass}"/>
+    <inertia
+      ixx="${mass / 12.0 * (width4*width4 + height4*height4)}" ixy="0.0" ixz="0.0"
+      iyy="${mass / 12.0 * (height4*height4 + width4*width4)}" iyz="0.0"
+      izz="${mass / 12.0 * (width4*width4 + width4*width4)}"/>
+    </inertial>
+  </link>
+
+  <!-- Joint 6, z origin = parent height  -->
+    <joint name="${prefix}joint6" type="revolute">
+    <origin xyz="${offsetx6} ${offsety6} ${offsetz6}" rpy="0.0 0.0 0.0"/>
+    <parent link="${prefix}link5"/>
+    <child link="${prefix}link6" />
+    <axis xyz="1 0 0"/>
+    <dynamics damping="0.7"/>
+    <limit velocity="4.8" effort="1" lower="-1.40" upper="-1.00" />
+  </joint>
+
+  <!-- Link 6, gripper mover -->
+  <link name="${prefix}link6">
+  <collision>
+    <origin xyz="${offsetx56} ${offsety56} ${offsetz56}" rpy="0.0 0.0 0.0"/>
+    <geometry>
+      <box size="${width5} ${width5} ${height5}"/>
+    </geometry>
+  </collision>
+
+  <visual>
+    <origin xyz="${offsetx56} ${offsety56} ${offsetz56}" rpy="0 0.0 0.0 "/>
+    <geometry>
+      <mesh filename="package://rebearm_description/meshes/URDF_joint6.stl" scale="0.005 0.005 0.005" />
     </geometry>
     <material name="blue"/>
   </visual>

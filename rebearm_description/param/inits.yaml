@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    initial_positions:
+      joint1: 0.0
+      joint2: 0.087
+      joint3: -1.484
+      joint4: -1.571
+      joint5: -1.570
+      joint6: -1.040

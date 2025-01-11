@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# Author: ChangWhan Lee
 from time import sleep, time
 import math
 import rclpy
@@ -211,6 +213,10 @@ class Rebearm(Node):
     def park(self):
         print("Parking...")
         self.m1.motors_on()
+        print("Parking Done")
+        return
+    
+        self.m1.motors_on()    
         self.motorMsg.data[END_ID1] = GRIPPER_OPEN
         moveJoint(END_ID, self.end, self.motorMsg)
 

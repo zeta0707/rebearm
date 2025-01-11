@@ -69,9 +69,8 @@ class ChaseMoveit(Node):
         self.robotarm = Rebearm()
         offset = self.robotarm.get_offsets()
         print("Offsets:", offset)
-        #can't move direct to zero, so home position first, need to fix later
+        #can't move home from state pulisher, need to fix later
         self.robotarm.home()
-        self.robotarm.zero()
 
         self.motorMsg = Int32MultiArray()
         setArmAgles(self.motorMsg, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, MOTOR4_ZERO, MOTOR5_ZERO, GRIPPER_OPEN)
@@ -85,11 +84,13 @@ class ChaseMoveit(Node):
         self.motorMsg.data[2] = trimLimits(math.degrees(cmd_msg.position[2]))
         self.motorMsg.data[3] = trimLimits(math.degrees(cmd_msg.position[3]))
         self.motorMsg.data[4] = trimLimits(math.degrees(cmd_msg.position[4]))
+        self.motorMsg.data[5] = trimLimits(math.degrees(cmd_msg.position[5]))
         #can't control air pump, then grip=0 always
-        setArmAgles(self.motorMsg, self.motorMsg.data[0] , self.motorMsg.data[1] , self.motorMsg.data[2] , self.motorMsg.data[3], self.motorMsg.data[4], GRIPPER_OPEN)
+        setArmAgles(self.motorMsg, self.motorMsg.data[0] , self.motorMsg.data[1] , self.motorMsg.data[2] , self.motorMsg.data[3], self.motorMsg.data[4], self.motorMsg.data[5])
 
         self.robotarm.run(self.motorMsg)
-        print( str(self.motorMsg.data[0]) + ':' + str(self.motorMsg.data[1]) + ':' + str(self.motorMsg.data[2]) + ':' + str(self.motorMsg.data[3])  + ':' + str(self.motorMsg.data[4])  )
+        print( str(self.motorMsg.data[0]) + ':' + str(self.motorMsg.data[1]) + ':' + str(self.motorMsg.data[2]) + ':' + str(self.motorMsg.data[3])  
+              + ':' + str(self.motorMsg.data[4]) + ':' +  str(self.motorMsg.data[5]) )
 
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')

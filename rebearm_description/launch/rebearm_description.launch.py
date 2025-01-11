@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Author: Minsoo Song
 # Author: ChangWhan Lee
 
 import os
@@ -20,7 +18,6 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
-
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -55,12 +52,12 @@ def generate_launch_description():
 
     declared_arguments.append(
         DeclareLaunchArgument(
-            "zero_parameter",
+            "home_parameter",
             default_value=os.path.join(
                 get_package_share_directory('rebearm_description'),
-                'param/zeros.yaml'
+                'param/inits.yaml'
             ),
-            description="start position"
+            description="initial position"
         )
     )
 
@@ -68,7 +65,7 @@ def generate_launch_description():
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
     prefix = LaunchConfiguration("prefix")
-    zero_parameter = LaunchConfiguration("zero_parameter")
+    home_parameter = LaunchConfiguration("home_parameter")
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -91,22 +88,17 @@ def generate_launch_description():
     )
 
     joint_state_publisher_node = Node(
-        package="joint_state_publisher_gui",
-        executable="joint_state_publisher_gui",
-        parameters=[zero_parameter],
+        package="joint_state_publisher_gui",  executable="joint_state_publisher_gui",
+        parameters=[home_parameter],
     )
 
     robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="both",
-        parameters=[robot_description, zero_parameter],
+        package="robot_state_publisher", executable="robot_state_publisher", output="both",
+        parameters=[robot_description, home_parameter],
     )
+
     rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
+        package="rviz2", executable="rviz2", name="rviz2", output="log",
         arguments=["-d", rviz_config_file],
     )
 
