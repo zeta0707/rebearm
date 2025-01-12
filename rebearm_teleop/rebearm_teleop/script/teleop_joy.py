@@ -53,8 +53,9 @@ Left lever left/right:  Base(M1), left/light
 Left lever up/down:     shoulder(M2) move
 Right lever up/down:    Elbow(M3) move
 Right lever left/right: Wrist(M4) move
-
 X   : gripper open/close toggle
+B   : M5 wrist
+
 L-1 : 90 position, motor assemble check
 L-2 : Move home
 R-2 : zero position, motor assemble check
@@ -158,6 +159,14 @@ class TeleopJoyNode(Node):
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[4]
+
+        # M5 wrist
+        elif joymsg.buttons[1] == 1 and self.mode_button_last == 0:
+            if self.control_motor5 == MOTOR5_HOME:
+                self.control_motor5 = MOTOR5_ZERO
+            else:
+                self.control_motor5 = MOTOR5_HOME
+            self.mode_button_last = joymsg.buttons[1]
 
         # gripper open/close
         elif joymsg.buttons[3] == 1 and self.mode_button_last == 0:

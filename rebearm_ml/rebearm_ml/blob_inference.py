@@ -171,15 +171,15 @@ class IKnetBall(Node):
             self.motorMsg.data[0] = MOTOR_NOMOVE
             #compenstate manually for far distance
             if self.blob_y < -0.45:
-                self.motorMsg.data[1] = int(outputy[0].item()+4.5)
+                self.motorMsg.data[1] = int(outputy[0].item()+0.0)
             elif self.blob_y < -0.25:
-                self.motorMsg.data[1] = int(outputy[0].item()+2.5)
+                self.motorMsg.data[1] = int(outputy[0].item()+0.0)
             elif self.blob_y < -0.10:
-                self.motorMsg.data[1] = int(outputy[0].item()+1.5)
+                self.motorMsg.data[1] = int(outputy[0].item()+0.0)
             elif self.blob_y < 0.10:
-                self.motorMsg.data[1] = int(outputy[0].item()+0.5)
+                self.motorMsg.data[1] = int(outputy[0].item()+0.0)
             else:
-                self.motorMsg.data[1] = int(outputy[0].item()-0.5)
+                self.motorMsg.data[1] = int(outputy[0].item()+0.0)
 
             self.motorMsg.data[2] = MOTOR_NOMOVE
             self.motorMsg.data[3] = MOTOR_NOMOVE

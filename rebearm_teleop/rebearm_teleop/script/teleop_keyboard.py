@@ -57,6 +57,8 @@ w/x : shoulder(M2) move
 j/l : Elbow(M3) move
 i/, : Wrist(M4) move
 g/G : Gripper close/open
+t/T : M5 wrist
+
 h   : Move home
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
@@ -173,6 +175,12 @@ def main():
                 status = status + 1
             elif key == 'G':            # gripper open 
                 control_gripper = check_angle_range(control_gripper + ANG_STEP)
+                status = status + 1
+            elif key == 't':            # motor5
+                control_motor5 = check_angle_range(control_motor5 - ANG_STEP)
+                status = status + 1
+            elif key == 'T':            # motor5
+                control_motor5 = check_angle_range(control_motor5 + ANG_STEP)
                 status = status + 1
 
             # calibrate M1 offset

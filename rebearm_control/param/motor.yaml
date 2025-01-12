@@ -6,5 +6,5 @@
     det_class3 : "donut"
     det_class4 : "shortcake"
 # a*x + b for angle_x
-    k_a : -29.000
-    k_b : 1.0
+    k_a : -25.000
+    k_b : 2.0
