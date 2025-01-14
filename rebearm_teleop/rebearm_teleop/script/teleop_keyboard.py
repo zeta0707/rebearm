@@ -58,11 +58,7 @@ j/l : Elbow(M3) move
 i/, : Wrist(M4) move
 g/G : Gripper close/open
 t/T : M5 wrist
-
 h   : Move home
-9   : 90 position, motor assemble check
-z   : zero position, motor assemble check
-
 CTRL-C to quit
 """
 
@@ -102,10 +98,9 @@ def main():
         settings = termios.tcgetattr(sys.stdin)
 
     rclpy.init()
-
-    print('Param max lin: %s deg, lin step: %s deg'%
-        (MAX_ANG,
-        ANG_STEP)
+ 
+    print('Param max lin: %s deg, lin step: %s deg, Calib: %d'%
+        (MAX_ANG, ANG_STEP, DO_CALIB)
     )
 
     node = rclpy.create_node('teleop_keyboard_node')        # generate node
@@ -183,79 +178,6 @@ def main():
                 control_motor5 = check_angle_range(control_motor5 + ANG_STEP)
                 status = status + 1
 
-            # calibrate M1 offset
-            elif key == '1' or key == '!':           
-                if key == '1':
-                    offset[0] += OFF_STEP
-                else:
-                    offset[0] -= OFF_STEP
-                robotarm.set_offset(1, offset[0])
-                robotarm.save_offset(1)
-                print("offset1:",offset[0])
-                continue
-            # calibrate M2 offset
-            elif key == '2' or key == '@':  
-                if key == '2':       
-                    offset[1]  += OFF_STEP
-                else:
-                    offset[1] -= OFF_STEP
-                robotarm.set_offset(2, offset[1])
-                robotarm.save_offset(2)
-                print("offset2:",offset[1])
-                continue
-            # calibrate M3 offset
-            elif key == '3' or key == '#':  
-                if key == '3':     
-                    offset[2] += OFF_STEP
-                else:
-                    offset[2]-= OFF_STEP
-                robotarm.set_offset(3, offset[2])
-                robotarm.save_offset(3)
-                print("offset3:",offset[2])
-                continue
-            # calibrate M4 offset
-            elif key == '4' or key == '$': 
-                if key == '4':       
-                    offset[3] += OFF_STEP
-                else:
-                    offset[3] -= OFF_STEP
-                robotarm.set_offset(4, offset[3])
-                robotarm.save_offset(4)
-                print("offset4:",offset[3])
-                continue
-            # calibrate M5 offset  
-            elif key == '5' or key == '%':         
-                if key == '5': 
-                    offset[4] += OFF_STEP
-                else:
-                    offset[4] -= OFF_STEP
-                robotarm.set_offset(5, offset[4])
-                robotarm.save_offset(5)
-                print("offset5:",offset[4])
-                continue
-
-            elif key == '9':
-                print('90degree position')
-                robotarm.deg90()
-                control_motor1 = MOTOR1_HOME
-                control_motor2 = 0
-                control_motor3 = MOTOR_RIGHT
-                control_motor4 = MOTOR_RIGHT
-                control_motor5 = MOTOR5_HOME
-                control_gripper = GRIPPER_OPEN
-                keystroke = 0
-
-            elif key == 'z':
-                print('zero position')
-                robotarm.zero()
-                control_motor1 = MOTOR1_HOME
-                control_motor2 = 0
-                control_motor3 = 0
-                control_motor4 = 0
-                control_motor5 = MOTOR5_ZERO
-                control_gripper = GRIPPER_OPEN
-                keystroke = 0
-
             elif key == 'h':
                 print('Home position')
                 robotarm.home()
@@ -267,6 +189,90 @@ def main():
                 control_gripper = GRIPPER_OPEN
                 keystroke = 0
 
+            elif DO_CALIB == 1:
+                # calibrate M1 offset
+                if key == '1' or key == '!':           
+                    if key == '1':
+                        offset[0] += OFF_STEP
+                    else:
+                        offset[0] -= OFF_STEP
+                    robotarm.set_offset(1, offset[0])
+                    robotarm.save_offset(1)
+                    print("offset1:",offset[0])
+                    continue
+                # calibrate M2 offset
+                elif key == '2' or key == '@':  
+                    if key == '2':       
+                        offset[1]  += OFF_STEP
+                    else:
+                        offset[1] -= OFF_STEP
+                    robotarm.set_offset(2, offset[1])
+                    robotarm.save_offset(2)
+                    print("offset2:",offset[1])
+                    continue
+                # calibrate M3 offset
+                elif key == '3' or key == '#':  
+                    if key == '3':     
+                        offset[2] += OFF_STEP
+                    else:
+                        offset[2]-= OFF_STEP
+                    robotarm.set_offset(3, offset[2])
+                    robotarm.save_offset(3)
+                    print("offset3:",offset[2])
+                    continue
+                # calibrate M4 offset
+                elif key == '4' or key == '$': 
+                    if key == '4':       
+                        offset[3] += OFF_STEP
+                    else:
+                        offset[3] -= OFF_STEP
+                    robotarm.set_offset(4, offset[3])
+                    robotarm.save_offset(4)
+                    print("offset4:",offset[3])
+                    continue
+                # calibrate M5 offset  
+                elif key == '5' or key == '%':         
+                    if key == '5': 
+                        offset[4] += OFF_STEP
+                    else:
+                        offset[4] -= OFF_STEP
+                    robotarm.set_offset(5, offset[4])
+                    robotarm.save_offset(5)
+                    print("offset5:",offset[4])
+                    continue
+
+                elif key == '9':
+                    print('90degree position')
+                    robotarm.deg90()
+                    control_motor1 = MOTOR1_HOME
+                    control_motor2 = 0
+                    control_motor3 = MOTOR_RIGHT
+                    control_motor4 = MOTOR_RIGHT
+                    control_motor5 = MOTOR5_HOME
+                    control_gripper = GRIPPER_OPEN
+                    keystroke = 0
+
+                elif key == 'z':
+                    print('zero position')
+                    robotarm.zero()
+                    control_motor1 = MOTOR1_HOME
+                    control_motor2 = 0
+                    control_motor3 = 0
+                    control_motor4 = 0
+                    control_motor5 = MOTOR5_ZERO
+                    control_gripper = GRIPPER_OPEN
+                    keystroke = 0
+                else:
+                    timediff = time() - prev_time
+                    #Ctrl-C, then stop working
+                    if (key == '\x03'):
+                        break
+                    #continous key stop
+                    elif ((keystroke > 0) and (timediff > 0.1)):
+                        keystroke = 0
+                    #no valid input, then don't control arm
+                    else:
+                        continue
             else:
                 timediff = time() - prev_time
                 #Ctrl-C, then stop working

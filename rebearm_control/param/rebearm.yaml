@@ -1,0 +1,22 @@
+/**:
+  ros__parameters:
+# yolo inferenece target
+    det_class1 : "cookie"
+    det_class2 : "cupcake"
+    det_class3 : "donut"
+    det_class4 : "shortcake"
+# a*x + b for angle_x
+    k_a : -25.000
+    k_b : 2.0
+# yolo parameters
+    yolo_model: "rebearm11n.pt"
+    input_rgb_topic: "/image_raw"
+    input_depth_topic: "/camera/depth/points"
+    subscribe_depth: False
+    publish_annotated_image: True
+    rgb_topic: "/yolo_ros/rgb_image"
+    depth_topic: "/yolo_ros/depth_image"
+    annotated_topic: "/yolo_ros/annotated_image"
+    detailed_topic: "/yolo_ros/detection_result"
+    threshold: 0.5
+    device: "0"

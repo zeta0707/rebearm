@@ -64,6 +64,7 @@ CONT_JOY = 3            #don't move untill CONT_JOY
 MAX_ANG = 120
 ANG_STEP = 3
 CONT_KEY = 3            #don't move untill CONT_KEY*100ms
+DO_CALIB = 0
 
 #human_guide parameter
 TIMER_HGUIDE = 0.2      #how frequent angle capture

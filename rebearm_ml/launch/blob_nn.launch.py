@@ -9,21 +9,21 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-  motor_parameter = LaunchConfiguration(
-    'motor_parameter',
+  robot_parameter = LaunchConfiguration(
+    'robot_parameter',
     default=os.path.join(
       get_package_share_directory('rebearm_control'),
-      'param/motor.yaml'
+      'param/rebearm.yaml'
     )
   )
 
   return LaunchDescription([
-    DeclareLaunchArgument('motor_parameter', default_value=motor_parameter),
+    DeclareLaunchArgument('robot_parameter', default_value=robot_parameter),
 
     Node(
       package='rebearm_ml',  executable='blob_nn',  name='nn_yolo_node',
       output='screen',  emulate_tty=True,
-      parameters=[motor_parameter],
+      parameters=[robot_parameter],
       namespace='',
     )
   ])

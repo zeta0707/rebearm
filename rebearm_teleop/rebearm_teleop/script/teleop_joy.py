@@ -55,10 +55,8 @@ Right lever up/down:    Elbow(M3) move
 Right lever left/right: Wrist(M4) move
 X   : gripper open/close toggle
 B   : M5 wrist
-
-L-1 : 90 position, motor assemble check
 L-2 : Move home
-R-2 : zero position, motor assemble check
+CTRL-C to quit
 """
 
 class TeleopJoyNode(Node):
@@ -133,32 +131,6 @@ class TeleopJoyNode(Node):
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[6]
-
-        # go zero position
-        elif joymsg.buttons[7] == 1 and self.mode_button_last == 0:
-            print('zero position')
-            self.robotarm.zero()
-            self.control_motor1 = MOTOR1_HOME
-            self.control_motor2 = 0
-            self.control_motor3 = 0
-            self.control_motor4 = 0
-            self.control_motor5 = MOTOR5_ZERO
-            self.control_gripper = GRIPPER_OPEN
-            self.keystroke = 0
-            self.mode_button_last = joymsg.buttons[7]
-
-        # go 90degree position
-        elif joymsg.buttons[4] == 1 and self.mode_button_last == 0:
-            print('90degree position')
-            self.robotarm.deg90()
-            self.control_motor1 = MOTOR1_HOME
-            self.control_motor2 = 0
-            self.control_motor3 = MOTOR_RIGHT
-            self.control_motor4 = MOTOR_RIGHT
-            self.control_motor5 = MOTOR5_HOME
-            self.control_gripper = GRIPPER_OPEN
-            self.keystroke = 0
-            self.mode_button_last = joymsg.buttons[4]
 
         # M5 wrist
         elif joymsg.buttons[1] == 1 and self.mode_button_last == 0:
