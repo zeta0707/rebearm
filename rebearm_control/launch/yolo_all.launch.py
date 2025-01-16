@@ -6,7 +6,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import os, yaml
 
@@ -16,7 +15,7 @@ def generate_launch_description():
         get_package_share_directory('rebearm_cv'), 'launch','usbcam.launch.py'
     )
 
-    included_usbcam = IncludeLaunchDescription(
+    include_usbcam = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(launch_file_1),
     )
 
@@ -26,15 +25,15 @@ def generate_launch_description():
     config2_path = os.path.join(package_share_dir, 'param', 'coco.yaml')
 
     # Declare an argument to choose the parameter file
-    config_choice = DeclareLaunchArgument(
-        'config_choice',
+    model = DeclareLaunchArgument(
+        'model',
         default_value='rebearm',
         description='Choose either rebearm or coco'
     )
 
     param_file = PythonExpression([
         f'"{config1_path}" if "',
-        LaunchConfiguration('config_choice'),
+        LaunchConfiguration('model'),
         f'" == "rebearm" else "{config2_path}"'
     ])
 
@@ -51,8 +50,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        included_usbcam,        # Add the included launch file
-        config_choice,
+        include_usbcam,        # Add the included launch file
+        model,
         node,
         node_yolo,
     ])

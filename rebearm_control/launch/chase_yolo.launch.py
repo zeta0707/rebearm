@@ -15,15 +15,15 @@ def generate_launch_description():
     config2_path = os.path.join(package_share_dir, 'param', 'coco.yaml')
 
     # Declare an argument to choose the parameter file
-    config_choice = DeclareLaunchArgument(
-        'config_choice',
+    model = DeclareLaunchArgument(
+        'model',
         default_value='rebearm',
         description='Choose either rebearm or coco'
     )
 
     param_file = PythonExpression([
         f'"{config1_path}" if "',
-        LaunchConfiguration('config_choice'),
+        LaunchConfiguration('model'),
         f'" == "rebearm" else "{config2_path}"'
     ])
 
@@ -34,6 +34,6 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        config_choice,
+        model,
         node
     ])
