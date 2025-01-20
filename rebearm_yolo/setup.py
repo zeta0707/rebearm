@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
                 'yolo_ros = rebearm_yolo.node:main',
+                'ncnn_ros = rebearm_yolo.ncnn_node:main',
         ],
     },
 )

@@ -14,7 +14,7 @@ import cv2
 class YoloROS(Node):
 
     def __init__(self):
-        super().__init__('yolo_ros_node')
+        super().__init__('ncnn_ros_node')
 
         self.declare_parameter("yolo_model",                "rebearm11n.pt")
         self.declare_parameter("input_rgb_topic",           "/image_raw")
@@ -38,7 +38,7 @@ class YoloROS(Node):
         self.threshold                  = self.get_parameter("threshold").get_parameter_value().double_value
         self.device                     = self.get_parameter("device").get_parameter_value().string_value
 
-        self.get_logger().info("Setting Up yolo_ros_node...")
+        self.get_logger().info("Setting Up ncnn_ros_node...")
         self.get_logger().info("Yolo model: %s  %.2f "%(self.yolo_model , self.threshold))
 
         self.bridge = CvBridge()
@@ -46,16 +46,10 @@ class YoloROS(Node):
         self.net = ncnn.Net()
 
         # Initialize YOLO model
-        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/')
-        #yolomodel = rosPath + self.yolo_model
-        #self.model = YOLO(yolomodel)
-        #self.model.fuse()
-        #please run only once to convert from pt to ncnn
-        #self.model.export(format="ncnn")    # create ncnn model   
-        #yolomodel = rosPath + "rebearm11n_ncnn_model" 
-
+        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/rebearm11n_ncnn_model/')
         self.yolomodel_bin = rosPath + "model.ncnn.bin"
         self.yolomodel_param = rosPath + "model.ncnn.param"
+        
         # Load model with error checking
         ret = self.net.load_param(self.yolomodel_param)
         if ret != 0:
