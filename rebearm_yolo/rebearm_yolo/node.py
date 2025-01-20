@@ -15,10 +15,8 @@ class YoloROS(Node):
 
         self.declare_parameter("yolo_model",                "rebearm11n.pt")
         self.declare_parameter("input_rgb_topic",           "/image_raw")
-        self.declare_parameter("input_depth_topic",         "/camera/depth/points")
         self.declare_parameter("publish_annotated_image",   True)
         self.declare_parameter("rgb_topic",                 "/yolo_ros/rgb_image")
-        self.declare_parameter("depth_topic",               "/yolo_ros/depth_image")
         self.declare_parameter("annotated_topic",           "/yolo_ros/annotated_image")
         self.declare_parameter("detailed_topic",            "/yolo_ros/detection_result")
         self.declare_parameter("threshold",                 0.25)
@@ -26,17 +24,15 @@ class YoloROS(Node):
 
         self.yolo_model                 = self.get_parameter("yolo_model").get_parameter_value().string_value
         self.input_rgb_topic            = self.get_parameter("input_rgb_topic").get_parameter_value().string_value
-        self.input_depth_topic          = self.get_parameter("input_depth_topic").get_parameter_value().string_value
         self.publish_annotated_image    = self.get_parameter("publish_annotated_image").get_parameter_value().bool_value
         self.rgb_topic                  = self.get_parameter("rgb_topic").get_parameter_value().string_value
-        self.depth_topic                = self.get_parameter("depth_topic").get_parameter_value().string_value
         self.annotated_topic            = self.get_parameter("annotated_topic").get_parameter_value().string_value
         self.detailed_topic             = self.get_parameter("detailed_topic").get_parameter_value().string_value
         self.threshold                  = self.get_parameter("threshold").get_parameter_value().double_value
         self.device                     = self.get_parameter("device").get_parameter_value().string_value
 
         self.get_logger().info("Setting Up yolo_ros_node...")
-        self.get_logger().info("Yolo model: %s  %.2f "%(self.yolo_model , self.threshold))
+        self.get_logger().info("Yolo model: %s, %s, %.2f "%(self.yolo_model , self.device, self.threshold))
 
         self.bridge = CvBridge()
 
