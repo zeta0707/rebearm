@@ -44,7 +44,7 @@ def generate_launch_description():
     )
 
     node_yolo = Node(
-      package='rebearm_yolo', executable='yolo_ros', name='yolo_ros_node',
+      package='rebearm_yolo', executable='ncnn_ros', name='yolo_ros_node',
       output='screen', emulate_tty=True,
         parameters=[param_file]
     )

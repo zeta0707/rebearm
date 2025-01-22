@@ -9,7 +9,7 @@
     k_a : -25.000
     k_b : 2.0
 # yolo parameters
-    yolo_model: "rebearm11n.pt"
+    yolo_model: "rebearm11n_ncnn_model"
     input_rgb_topic: "/image_raw"
     publish_annotated_image: True
     rgb_topic: "/yolo_ros/rgb_image"

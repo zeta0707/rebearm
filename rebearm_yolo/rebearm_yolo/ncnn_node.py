@@ -41,7 +41,7 @@ class YoloROS(Node):
         yolomodel = rosPath + self.yolo_model
 
         # Initialize NCNN network
-        self.model = YOLO(yolomodel)
+        self.model = YOLO(yolomodel, task='detect')
 
         self.get_logger().info("Setting Up yolo_ros_node...")
         self.get_logger().info("Yolo model: %s, %s, %.2f "%(self.yolo_model , self.device, self.threshold))
@@ -71,7 +71,7 @@ class YoloROS(Node):
         # Calculate and log processing time
         end = time.time_ns()
         process_time = (end - start) / 1e6  # Convert to milliseconds
-        self.get_logger().info(f'Processing time: {process_time:.2f}ms')
+        #self.get_logger().info(f'Processing time: {process_time:.2f}ms')
 	
 	    #self.detection_msg.header       = rgb_image.header
         self.detection_msg.header.stamp = self.get_clock().now().to_msg()
