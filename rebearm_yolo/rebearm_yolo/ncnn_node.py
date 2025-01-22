@@ -14,9 +14,9 @@ import cv2
 class YoloROS(Node):
 
     def __init__(self):
-        super().__init__('ncnn_ros_node')
+        super().__init__('yolo_ros_node')
 
-        self.declare_parameter("yolo_model",                "rebearm11n.pt")
+        self.declare_parameter("yolo_model",                "rebearm11n_ncnn_model")
         self.declare_parameter("input_rgb_topic",           "/image_raw")
         self.declare_parameter("publish_annotated_image",   True)
         self.declare_parameter("rgb_topic",                 "/yolo_ros/rgb_image")
@@ -34,31 +34,21 @@ class YoloROS(Node):
         self.threshold                  = self.get_parameter("threshold").get_parameter_value().double_value
         self.device                     = self.get_parameter("device").get_parameter_value().string_value
 
-        self.get_logger().info("Setting Up ncnn_ros_node...")
-        self.get_logger().info("Yolo model: %s, %s, %.2f "%(self.yolo_model , self.device, self.threshold))
-
         self.bridge = CvBridge()
-        # Initialize NCNN network
-        self.net = ncnn.Net()
 
         # Initialize YOLO model
-        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/rebearm11n_ncnn_model/')
-        self.yolomodel_bin = rosPath + "model.ncnn.bin"
-        self.yolomodel_param = rosPath + "model.ncnn.param"
-        
-        # Load model with error checking
-        ret = self.net.load_param(self.yolomodel_param)
-        if ret != 0:
-            raise RuntimeError(f'Failed to load param file, error code: {ret}')
-            
-        ret = self.net.load_model(self.yolomodel_bin )
-        if ret != 0:
-            raise RuntimeError(f'Failed to load bin file, error code: {ret}')
+        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/')
+        yolomodel = rosPath + self.yolo_model
+
+        # Initialize NCNN network
+        self.model = YOLO(yolomodel)
+
+        self.get_logger().info("Setting Up yolo_ros_node...")
+        self.get_logger().info("Yolo model: %s, %s, %.2f "%(self.yolo_model , self.device, self.threshold))
         
         self.subscriber_qos_profile = QoSProfile(reliability=QoSReliabilityPolicy.BEST_EFFORT,
                                                  history=QoSHistoryPolicy.KEEP_LAST,
                                                  depth=1)
-
 
         self.subscription = self.create_subscription(Image, self.input_rgb_topic, self.image_callback, qos_profile=self.subscriber_qos_profile)
         self.publisher_results  = self.create_publisher(Detections, self.detailed_topic, qos_profile_sensor_data)
@@ -73,77 +63,17 @@ class YoloROS(Node):
         self.detection_msg = Detections()
         self.class_list_set = False
 
-    def preprocess_image(self, cv_image, target_size=(640, 480)):
-        """
-        Preprocess OpenCV image for YOLO inference
-        """
-        # Get original image size
-        original_height, original_width = cv_image.shape[:2]
-        
-        # Resize image
-        img_resized = cv2.resize(cv_image, target_size)
-        
-        # Convert to float32
-        img_float = img_resized.astype(np.float32)
-        
-        # Normalize to [0, 255]
-        img_norm = img_float
-        
-        # Convert BGR to RGB and normalize to [0, 1]
-        img_rgb = cv2.cvtColor(img_norm, cv2.COLOR_BGR2RGB)
-        img_norm = img_rgb / 255.0
-        
-        # Convert to NCNN's required format (CHW)
-        img_chw = img_norm.transpose((2, 0, 1))
-        
-        # Ensure array is contiguous
-        img_chw = np.ascontiguousarray(img_chw, dtype=np.float32)
-        
-        return img_chw, (original_height, original_width)
-    
-    def inference(self, preprocessed_image):
-        """
-        Run NCNN inference with correct blob names
-        """
-        try:
-            # Create extractor
-            ex = self.net.create_extractor()
-            
-            # Create input mat
-            mat_in = ncnn.Mat(preprocessed_image)
-            
-            # Set input using correct blob name "in0"
-            ret = ex.input("in0", mat_in)
-            if ret != 0:
-                self.get_logger().error(f"Failed to set input, error code: {ret}")
-                return None
-                
-            # Get output using correct blob name "out0"
-            ret, mat_out = ex.extract("out0")
-            if ret != 0:
-                self.get_logger().error(f"Failed to extract output, error code: {ret}")
-                return None
-                
-            # Convert to numpy array
-            output = np.array(mat_out)
-            
-            return output
-        except Exception as e:
-            self.get_logger().error(f'Inference error: {str(e)}')
-            return None
-
     def image_callback(self, rgb_image):
         start = time.time_ns()
+        cv_image = self.bridge.imgmsg_to_cv2(rgb_image, desired_encoding="bgr8")
+        self.result = self.model(cv_image)
 
-        self.input_image = self.bridge.imgmsg_to_cv2(rgb_image, desired_encoding="bgr8")
-        # Log image shape
-        self.get_logger().debug(f'Received image shape: {self.input_image.shape}')
-        preprocessed = self.preprocess_image(self.input_image)
-        
-        # Run inference
-        self.result = self.inference(preprocessed)
-        
-        #self.detection_msg.header       = rgb_image.header
+        # Calculate and log processing time
+        end = time.time_ns()
+        process_time = (end - start) / 1e6  # Convert to milliseconds
+        self.get_logger().info(f'Processing time: {process_time:.2f}ms')
+	
+	    #self.detection_msg.header       = rgb_image.header
         self.detection_msg.header.stamp = self.get_clock().now().to_msg()
 
         if (not self.class_list_set) and (self.result is not None):
@@ -198,7 +128,6 @@ class YoloROS(Node):
             self.get_logger().info('RGB callback execution time for 100 loops: %d ms' % ((self.time/100)/1000000))
             self.time = 0
             self.counter = 0
-
 
 def main(args=None):
     rclpy.init(args=args)

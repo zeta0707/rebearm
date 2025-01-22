@@ -31,16 +31,18 @@ class YoloROS(Node):
         self.threshold                  = self.get_parameter("threshold").get_parameter_value().double_value
         self.device                     = self.get_parameter("device").get_parameter_value().string_value
 
-        self.get_logger().info("Setting Up yolo_ros_node...")
-        self.get_logger().info("Yolo model: %s, %s, %.2f "%(self.yolo_model , self.device, self.threshold))
-
         self.bridge = CvBridge()
 
         # Initialize YOLO model
         rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_yolo/weights/')
         yolomodel = rosPath + self.yolo_model
+
+        # Initialize Yolo network
         self.model = YOLO(yolomodel)
-        
+
+        self.get_logger().info("Setting Up yolo_ros_node...")
+        self.get_logger().info("Yolo model: %s, %s, %.2f "%(self.yolo_model , self.device, self.threshold))
+
         #please run only once to convert from pt to ncnn
         #self.model.export(format="ncnn")    # create ncnn model   
         
@@ -64,15 +66,20 @@ class YoloROS(Node):
 
     def image_callback(self, rgb_image):
         start = time.time_ns()
+        cv_image = self.bridge.imgmsg_to_cv2(rgb_image, desired_encoding="bgr8")
 
-        self.input_image = self.bridge.imgmsg_to_cv2(rgb_image, desired_encoding="bgr8")
-
-        self.result = self.model.predict(source = self.input_image,
+        self.result = self.model.predict(source = cv_image,
                                          conf=self.threshold,
                                          device=self.device,
                                          verbose=False)
 
-        #self.detection_msg.header       = rgb_image.header
+        
+        # Calculate and log processing time
+        end = time.time_ns()
+        process_time = (end - start) / 1e6  # Convert to milliseconds
+        self.get_logger().info(f'Processing time: {process_time:.2f}ms')
+	
+	#self.detection_msg.header       = rgb_image.header
         self.detection_msg.header.stamp = self.get_clock().now().to_msg()
 
         if (not self.class_list_set) and (self.result is not None):
