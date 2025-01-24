@@ -59,12 +59,28 @@ i/, : Wrist(M4) move
 g/G : Gripper close/open
 t/T : M5 wrist
 h   : Move home
+9   : 90 position, motor assemble check
+z   : zero position, motor assemble check
 CTRL-C to quit
 """
 
 e = """
 Communications Failed
 """
+
+class TeleopKeyboardNode(Node):
+    def __init__(self):
+        super().__init__('teleop_keyboard_node')
+        
+        # Declare parameters with default values
+        self.declare_parameter('max_ang', 120)  # Maximum angle
+        self.declare_parameter('ang_step', 3)  # Angle step
+        self.declare_parameter('do_calib', 0)  # Calibration flag
+
+        # Get parameter values
+        self.MAX_ANG = self.get_parameter('max_ang').value
+        self.ANG_STEP = self.get_parameter('ang_step').value
+        self.DO_CALIB = self.get_parameter('do_calib').value
 
 def get_key(settings):
     if os.name == 'nt':
@@ -89,8 +105,8 @@ def constrain(input_vel, low_bound, high_bound):
 
     return input_vel
 
-def check_angle_range(velocity):
-    return constrain(velocity, -MAX_ANG, MAX_ANG)
+def check_angle_range(velocity, max_angle):
+    return constrain(velocity, -max_angle, max_angle)
 
 def main():
     settings = None
@@ -98,13 +114,12 @@ def main():
         settings = termios.tcgetattr(sys.stdin)
 
     rclpy.init()
- 
-    print('Param max lin: %s deg, lin step: %s deg, Calib: %d'%
-        (MAX_ANG, ANG_STEP, DO_CALIB)
+
+    node = TeleopKeyboardNode()       # generate node
+    print('Param max lin: %s deg, lin step: %s deg, Calib: %d' %
+            (node.MAX_ANG, node.ANG_STEP, node.DO_CALIB)
     )
-
-    node = rclpy.create_node('teleop_keyboard_node')        # generate node
-
+    
     anglePub = node.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
 
     print('Rebearm Teleop Keyboard controller')
@@ -142,40 +157,40 @@ def main():
         while(1):
             key = get_key(settings)
             if key == 'x':              # motor1
-                control_motor2 = check_angle_range(control_motor2 - ANG_STEP)
+                control_motor2 = check_angle_range(control_motor2 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'w':            # motor1
-                control_motor2 = check_angle_range(control_motor2 + ANG_STEP)
+                control_motor2 = check_angle_range(control_motor2 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'j':            # motor2
-                control_motor3 = check_angle_range(control_motor3 - ANG_STEP)
+                control_motor3 = check_angle_range(control_motor3 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'l':            # motor2
-                control_motor3 = check_angle_range(control_motor3 + ANG_STEP)
+                control_motor3 = check_angle_range(control_motor3 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == ',':            # motor3
-                control_motor4 = check_angle_range(control_motor4 - ANG_STEP)
+                control_motor4 = check_angle_range(control_motor4 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'i':            # motor3
-                control_motor4 = check_angle_range(control_motor4 + ANG_STEP)
+                control_motor4 = check_angle_range(control_motor4 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'a':            # motor0
-                control_motor1 = check_angle_range(control_motor1 - ANG_STEP)
+                control_motor1 = check_angle_range(control_motor1 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'd':            # motor0
-                control_motor1 = check_angle_range(control_motor1 + ANG_STEP)
+                control_motor1 = check_angle_range(control_motor1 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'g':            # gripper close
-                control_gripper = check_angle_range(control_gripper - ANG_STEP)
+                control_gripper = check_angle_range(control_gripper - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'G':            # gripper open 
-                control_gripper = check_angle_range(control_gripper + ANG_STEP)
+                control_gripper = check_angle_range(control_gripper + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 't':            # motor5
-                control_motor5 = check_angle_range(control_motor5 - ANG_STEP)
+                control_motor5 = check_angle_range(control_motor5 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'T':            # motor5
-                control_motor5 = check_angle_range(control_motor5 + ANG_STEP)
+                control_motor5 = check_angle_range(control_motor5 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
 
             elif key == 'h':
@@ -189,7 +204,7 @@ def main():
                 control_gripper = GRIPPER_OPEN
                 keystroke = 0
 
-            elif DO_CALIB == 1:
+            elif node.DO_CALIB == 1:
                 # calibrate M1 offset
                 if key == '1' or key == '!':           
                     if key == '1':
