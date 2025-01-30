@@ -170,9 +170,9 @@ def main():
             #key pressed, print motor angle
             if status == 1:
                 if mStatus == 0:
-                    print('x= %.2f, y=%.2f, M0= %d, M1=%d, M2=%d, M3=%d' %(blob_x, blob_y, data[0], data[1], data[2], data[3]))
-                    fhandle.write(str(blob_x) + ',' + str(blob_y+1.0) + ',' + str(data[0]) + ',' + str(data[1]) + ',' + str(data[2])
-                                + ',' + str(data[3]) + '\n')
+                    print('x= %.2f, y=%.2f, M0= %.2f, M1=%.2f, M2=%.2f, M3=%.2f' %(blob_x, blob_y, data[0], data[1], data[2], data[3]))
+                    fhandle.write(f'{blob_x:.5f}' + ',' + f'{blob_y+1.0:.5f}' + ',' + f'{data[0]:.2f}' + ',' + f'{data[1]:.2f}'+ ',' + f'{data[2]:.2f}'
+                                + ',' + f'{data[3]:.2f}' + '\n')
                     fhandle.flush()
                     #move home to collect more data, pickup action first
                     robotarm.pickup()
