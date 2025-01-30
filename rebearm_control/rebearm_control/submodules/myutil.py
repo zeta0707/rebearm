@@ -7,60 +7,62 @@ from rclpy.node import Node
 from . myconfig import *
 from std_msgs.msg import Float32MultiArray
 
-import serial
-import lewansoul_lx16a
+from . import lx16a
 
 SERIAL_PORT = '/dev/buslinker2'
 M6_ID = 6
 M6_IDM1 = (M6_ID - 1)
 
-controller = lewansoul_lx16a.ServoController(
-    serial.Serial(SERIAL_PORT, 115200, timeout=1),
-)
+Tfactor = 25        #value to LX16A time
+T1Factor = 0.3      #300ms more wait
+
+lx16a.LX16A.initialize(SERIAL_PORT, 0.1)
 
 class Joint:
     def __init__(self, id):
         self.id = id
+        #class with torque enable
+        self.servo = lx16a.LX16A(id_=id, disable_torque=0)
+        self.servo.set_angle_limits(0, 240)
         self.prev_pos = -1
-        try:
-            self.start = self.end = controller.get_position(self.id)
-        except lewansoul_lx16a.TimeoutError:
-            print("TimeoutError, servo id: ", self.id)
-            exit(0)
 
     def move_to(self, pos, t=0):
+        #-120~120 => 0~240
         if pos != self.prev_pos:
-            #move time tuning, 2: too fast, 3: a little slow
-            t =  int(abs(pos - self.prev_pos)*3.0)
+            #move time tuning
+            t =  int(abs(pos - self.prev_pos)*Tfactor)
             self.prev_pos = pos
             try:
-                controller.move(self.id, pos, t)
+                self.servo.move(angle=pos+120.0, time=t)
             except:
                 pass
 
     def get_pos(self):
         try:
-            return controller.get_position(self.id)
+            angle  = self.servo.get_physical_angle() 
+            self.prev_pos = angle - 120.0
+            # 0~240 =>-120~120 
+            return self.prev_pos
         except:
+            print(self.id)
             return None
-        
+     
     def set_offset(self, deviation):
-        controller.set_position_offset(self.id, deviation)
-
-    def save_offset(self):
-        controller.save_position_offset(self.id)
+        #with permanent
+        self.servo.set_angle_offset(deviation,  permanent=True)
 
     def get_offset(self):
         try:
-            return controller.get_position_offset(self.id)
+            #read with poll_hardware
+            return self.servo.get_angle_offset(True)
         except:
             return None  
            
     def motors_on(self):
-        controller.motor_on(254)
+        self.servo.enable_torque_all()
 
     def motors_off(self):
-        controller.motor_off(254)
+        self.servo.disable_torque_all()
 
 def clamp(n, minn, maxn):
     if n < minn:
@@ -84,55 +86,35 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
     arm.data = [ang0, ang1, ang2, ang3, ang4, grip]
 
 def moveJoint(id, joint, mMSG):
-    #degree -> motor value, -120~120 => 0~1000
-    CMD_TIMEOUT = 0.7
-    count = 0
     tar_ang = mMSG.data[id-1]
-    tar_ang_val = int(mMSG.data[id-1]*500.0/120.0 + 500.0)
-    #print('id: %d, tar:%d'%(id, tar_ang))
+    cur_ang = joint.get_pos()
 
     if tar_ang == MOTOR_NOMOVE:
         return
+
     #gripper, don't read angle
-    if (id == END_ID):
-        joint.move_to(tar_ang_val)
+    if (id == M6_ID):
+        joint.move_to(tar_ang)
         sleep(1.0)
     else:
-        start_time = time()
-        joint.move_to(tar_ang_val)
-        sleep(0.1)
-        while True:
-            if (time() - start_time) > CMD_TIMEOUT:
-                #print(id, "!!!motor slow!!!")
-                start_time = time()
-                count = count + 1
-                if (count == 3):
-                    #print(id, "!!!motor stuck!!!")
-                    break
-                else:
-                    joint.move_to(tar_ang_val + count)
-                    continue
-
-            cur_ang = int((float(joint.get_pos()) - 500.0)*120.0/500.0) 
-            #print(cur_ang, ',', sep='', end='', flush=True)
-            if abs(cur_ang - tar_ang) < 4:
-                #print("Move done")
-                return
+        t = abs(tar_ang - cur_ang)*Tfactor*0.001 + T1Factor
+        joint.move_to(tar_ang)
+        sleep(t)
+        #print('id:%d, org:%.2f, tar:%.2f, cur:%.2f, time:%.2f' %(id, cur_ang, tar_ang, joint.get_pos(), t))
 
 def moveJointAll(m1, m2, m3, m4, m5, end, mMSG):
-    #degree -> motor value, -120~120 => 0~1000
     if mMSG.data[0] != MOTOR_NOMOVE:
-        m1.move_to(int(mMSG.data[0]*500.0/120.0 + 500.0))
+        m1.move_to(mMSG.data[0], 400)
     if mMSG.data[1] != MOTOR_NOMOVE:
-        m2.move_to(int(mMSG.data[1]*500.0/120.0 + 500.0))
+        m2.move_to(mMSG.data[1], 400)
     if mMSG.data[2] != MOTOR_NOMOVE:
-        m3.move_to(int(mMSG.data[2]*500.0/120.0 + 500.0))
+        m3.move_to(mMSG.data[2], 400)
     if mMSG.data[3] != MOTOR_NOMOVE:
-        m4.move_to(int(mMSG.data[3]*500.0/120.0 + 500.0))
+        m4.move_to(mMSG.data[3], 400)
     if mMSG.data[4] != MOTOR_NOMOVE:
-        m5.move_to(int(mMSG.data[4]*500.0/120.0 + 500.0))
+        m5.move_to(mMSG.data[4], 400)
     if mMSG.data[5] != MOTOR_NOMOVE:
-        end.move_to(int(mMSG.data[5]*500.0/120.0 + 500.0))
+        end.move_to(mMSG.data[5],400)
 
 class Rebearm(Node):
     """
@@ -162,13 +144,18 @@ class Rebearm(Node):
         moveJointAll(self.m1, self.m2, self.m3, self.m4, self.m5, self.end, self.motorMsg)
 
     def readAngle(self):
-        #motor value -> degree, -120~120 => 0~1000 => -120~120
-        ang1 = int((self.m1.get_pos() - 500.0)*120.0/500.0)
-        ang2 = int((self.m2.get_pos() - 500.0)*120.0/500.0)
-        ang3 = int((self.m3.get_pos() - 500.0)*120.0/500.0)
-        ang4 = int((self.m4.get_pos() - 500.0)*120.0/500.0)
-        ang5 = int((self.m5.get_pos() - 500.0)*120.0/500.0)
-        ang6 = int((self.end.get_pos() - 500.0)*120.0/500.0)
+        ang1 = self.m1.get_pos()    
+        sleep(0.1)
+        ang2 = self.m2.get_pos()
+        sleep(0.1)
+        ang3 = self.m3.get_pos()
+        sleep(0.1)
+        ang4 = self.m4.get_pos()
+        sleep(0.1)
+        ang5 = self.m5.get_pos()
+        sleep(0.1)
+        ang6 = self.end.get_pos()
+        sleep(0.1)
         return [ang1, ang2, ang3, ang4, ang5, ang6]
     
     def motors_off(self):
@@ -197,18 +184,6 @@ class Rebearm(Node):
             self.m4.set_offset(deviation)
         elif (id == 5):
             self.m5.set_offset(deviation)
-
-    def save_offset(self, id):
-        if (id == 1):
-            self.m1.save_offset()
-        elif (id == 2):
-            self.m2.save_offset()
-        elif (id == 3):
-            self.m3.save_offset()
-        elif (id == 4):
-            self.m4.save_offset()
-        elif (id == 5):
-            self.m5.save_offset()
 
     def park(self):
         print("Parking...")
