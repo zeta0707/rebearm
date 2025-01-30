@@ -14,6 +14,8 @@ SERIAL_PORT = '/dev/buslinker2'
 M6_ID = 6
 M6_IDM1 = (M6_ID - 1)
 
+Tfactor = 3.0        #value to LX16A time
+
 controller = lewansoul_lx16a.ServoController(
     serial.Serial(SERIAL_PORT, 115200, timeout=1),
 )
@@ -28,10 +30,9 @@ class Joint:
             print("TimeoutError, servo id: ", self.id)
             exit(0)
 
-    def move_to(self, pos, t=0):
+    def move_to(self, pos):
         if pos != self.prev_pos:
-            #move time tuning, 2: too fast, 3: a little slow
-            t =  int(abs(pos - self.prev_pos)*3.0)
+            t =  int(abs(pos - self.prev_pos)*Tfactor)
             self.prev_pos = pos
             try:
                 controller.move(self.id, pos, t)
@@ -85,39 +86,22 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
 
 def moveJoint(id, joint, mMSG):
     #degree -> motor value, -120~120 => 0~1000
-    CMD_TIMEOUT = 0.7
-    count = 0
     tar_ang = mMSG.data[id-1]
-    tar_ang_val = int(mMSG.data[id-1]*500.0/120.0 + 500.0)
-    #print('id: %d, tar:%d'%(id, tar_ang))
 
     if tar_ang == MOTOR_NOMOVE:
         return
+    
+    cur_ang = int((joint.get_pos() - 500.0)*120.0/500.0)
+    tar_ang_val = int(mMSG.data[id-1]*500.0/120.0 + 500.0)
+
     #gripper, don't read angle
-    if (id == END_ID):
+    if (id == M6_ID):
         joint.move_to(tar_ang_val)
         sleep(1.0)
     else:
-        start_time = time()
+        t = abs(tar_ang - cur_ang)*Tfactor*0.01
         joint.move_to(tar_ang_val)
-        sleep(0.1)
-        while True:
-            if (time() - start_time) > CMD_TIMEOUT:
-                #print(id, "!!!motor slow!!!")
-                start_time = time()
-                count = count + 1
-                if (count == 3):
-                    #print(id, "!!!motor stuck!!!")
-                    break
-                else:
-                    joint.move_to(tar_ang_val + count)
-                    continue
-
-            cur_ang = int((float(joint.get_pos()) - 500.0)*120.0/500.0) 
-            #print(cur_ang, ',', sep='', end='', flush=True)
-            if abs(cur_ang - tar_ang) < 4:
-                #print("Move done")
-                return
+        sleep(t)
 
 def moveJointAll(m1, m2, m3, m4, m5, end, mMSG):
     #degree -> motor value, -120~120 => 0~1000
@@ -269,9 +253,6 @@ class Rebearm(Node):
         self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
         moveJoint(M6_ID, self.end, self.motorMsg)
 
-        self.motorMsg.data[4] = MOTOR5_ZERO
-        moveJoint(5, self.m5, self.motorMsg)
-
         self.motorMsg.data[1] = MOTOR2_HOME+5.0    #move reverse at first
         moveJoint(2, self.m2, self.motorMsg)
 
@@ -290,6 +271,9 @@ class Rebearm(Node):
         self.motorMsg.data[1] = MOTOR2_ZERO
         moveJoint(2, self.m2, self.motorMsg)
 
+        self.motorMsg.data[4] = MOTOR5_ZERO
+        moveJoint(5, self.m5, self.motorMsg)
+
         #somehow doesn't move complete, then compensate here
         moveJointAll(self.m1, self.m2, self.m3, self.m4, self.m5, self.end, self.motorMsg)
         print("Zoering Done")
@@ -298,12 +282,12 @@ class Rebearm(Node):
         print("Run 90degree")
         self.motors_on()
 
-        self.motorMsg.data[2] = MOTOR_RIGHT
-        moveJoint(3, self.m3, self.motorMsg)
-
         self.motorMsg.data[3] = MOTOR_RIGHT
         moveJoint(4, self.m4, self.motorMsg)
         
+        self.motorMsg.data[2] = MOTOR_RIGHT
+        moveJoint(3, self.m3, self.motorMsg)
+
         self.motorMsg.data[1] = 0.0
         moveJoint(2, self.m2, self.motorMsg)
 
