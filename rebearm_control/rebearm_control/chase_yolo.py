@@ -50,7 +50,7 @@ from rclpy.node import Node
 from rclpy.logging import get_logger
 from rebearm_interfaces.msg import Detections
 from rclpy.qos import qos_profile_sensor_data
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 import atexit
 
 from .submodules.myutil import Rebearm, setArmAgles
@@ -94,13 +94,15 @@ class ChaseObject(Node):
          # Create a timer that will gate the node actions twice a second
         self.timer = self.create_timer(CB_FREQ, self.node_callback)
 
-        self.motorMsg = Int32MultiArray()
+        self.motorMsg = Float32MultiArray()
         setArmAgles(self.motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
 
         self.robotarm = Rebearm()
+        angles = self.robotarm.readAngle()
+        print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
-        print("Offsets:", offset)
-        
+        print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+
         self.armStatus = 'HOMING'
         self.robotarm.home()
         self.armStatus = 'SEARCHING'

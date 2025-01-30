@@ -36,7 +36,7 @@ from time import sleep, time
 import os, select, sys
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 from rclpy.qos import qos_profile_sensor_data
 
 from .submodules.myutil import Rebearm, clamp, setArmAgles
@@ -52,12 +52,13 @@ msg = """
 Control Your Robot!
 ---------------------------
 Moving around:
-a/d : base(M1), left/light
-w/x : shoulder(M2) move
+a/d : Waist(M1), left/light
+w/x : Soulder(M2) move
 j/l : Elbow(M3) move
-i/, : Wrist(M4) move
-g/G : Gripper close/open
-t/T : M5 wrist
+i/, : Forearm(M4) move
+t/T : wrist(M5) move
+g/G : Gripper move
+
 h   : Move home
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
@@ -73,8 +74,8 @@ class TeleopKeyboardNode(Node):
         super().__init__('teleop_keyboard_node')
         
         # Declare parameters with default values
-        self.declare_parameter('max_ang', 120)  # Maximum angle
-        self.declare_parameter('ang_step', 3)  # Angle step
+        self.declare_parameter('max_ang', 120.0)  # Maximum angle
+        self.declare_parameter('ang_step', 3.0)  # Angle step
         self.declare_parameter('do_calib', 0)  # Calibration flag
 
         # Get parameter values
@@ -120,13 +121,15 @@ def main():
             (node.MAX_ANG, node.ANG_STEP, node.DO_CALIB)
     )
     
-    anglePub = node.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
+    anglePub = node.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
 
     print('Rebearm Teleop Keyboard controller')
     robotarm = Rebearm()
-    robotarm.home()
+    angles=robotarm.readAngle()
+    print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
     offset = robotarm.get_offsets()
-    print("Offsets:", offset)
+    print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+    robotarm.home()
 
     status = 0
     control_motor1 = MOTOR1_HOME
@@ -135,9 +138,9 @@ def main():
     control_motor4 = MOTOR4_HOME
     control_motor5 = MOTOR5_HOME
     control_gripper = GRIPPER_OPEN
-    OFF_STEP = 3
+    OFF_STEP = 0.5
 
-    motorMsg = Int32MultiArray()
+    motorMsg = Float32MultiArray()
     motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
     setArmAgles(motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
 
@@ -212,8 +215,7 @@ def main():
                     else:
                         offset[0] -= OFF_STEP
                     robotarm.set_offset(1, offset[0])
-                    robotarm.save_offset(1)
-                    print("offset1:",offset[0])
+                    print('offset1: %.2f' %(offset[0]))
                     continue
                 # calibrate M2 offset
                 elif key == '2' or key == '@':  
@@ -222,8 +224,7 @@ def main():
                     else:
                         offset[1] -= OFF_STEP
                     robotarm.set_offset(2, offset[1])
-                    robotarm.save_offset(2)
-                    print("offset2:",offset[1])
+                    print('offset2: %.2f' %(offset[1]))
                     continue
                 # calibrate M3 offset
                 elif key == '3' or key == '#':  
@@ -232,8 +233,7 @@ def main():
                     else:
                         offset[2]-= OFF_STEP
                     robotarm.set_offset(3, offset[2])
-                    robotarm.save_offset(3)
-                    print("offset3:",offset[2])
+                    print('offset3: %.2f' %(offset[2]))
                     continue
                 # calibrate M4 offset
                 elif key == '4' or key == '$': 
@@ -242,8 +242,7 @@ def main():
                     else:
                         offset[3] -= OFF_STEP
                     robotarm.set_offset(4, offset[3])
-                    robotarm.save_offset(4)
-                    print("offset4:",offset[3])
+                    print('offset4: %.2f' %(offset[3]))
                     continue
                 # calibrate M5 offset  
                 elif key == '5' or key == '%':         
@@ -252,15 +251,14 @@ def main():
                     else:
                         offset[4] -= OFF_STEP
                     robotarm.set_offset(5, offset[4])
-                    robotarm.save_offset(5)
-                    print("offset5:",offset[4])
+                    print('offset5: %.2f' %(offset[4]))
                     continue
 
                 elif key == '9':
                     print('90degree position')
                     robotarm.deg90()
                     control_motor1 = MOTOR1_HOME
-                    control_motor2 = 0
+                    control_motor2 = 0.0
                     control_motor3 = MOTOR_RIGHT
                     control_motor4 = MOTOR_RIGHT
                     control_motor5 = MOTOR5_HOME
@@ -271,9 +269,9 @@ def main():
                     print('zero position')
                     robotarm.zero()
                     control_motor1 = MOTOR1_HOME
-                    control_motor2 = 0
-                    control_motor3 = 0
-                    control_motor4 = 0
+                    control_motor2 = 0.0
+                    control_motor3 = 0.0
+                    control_motor4 = 0.0
                     control_motor5 = MOTOR5_ZERO
                     control_gripper = GRIPPER_OPEN
                     keystroke = 0
@@ -302,12 +300,12 @@ def main():
 
             #key pressed
             if status == 1:
-                control_motor1 = int(clamp(control_motor1, MOTOR1_MIN, MOTOR1_MAX))
-                control_motor2 = int(clamp(control_motor2, MOTOR2_MIN, MOTOR2_MAX))
-                control_motor3 = int(clamp(control_motor3, MOTOR3_MIN, MOTOR3_MAX))
-                control_motor4 = int(clamp(control_motor4, MOTOR4_MIN, MOTOR4_MAX))
-                control_motor5 = int(clamp(control_motor5, MOTOR5_MIN, MOTOR5_MAX))
-                control_gripper = int(clamp(control_gripper, GRIPPER_MIN, GRIPPER_MAX))
+                control_motor1 = clamp(control_motor1, MOTOR1_MIN, MOTOR1_MAX)
+                control_motor2 = clamp(control_motor2, MOTOR2_MIN, MOTOR2_MAX)
+                control_motor3 = clamp(control_motor3, MOTOR3_MIN, MOTOR3_MAX)
+                control_motor4 = clamp(control_motor4, MOTOR4_MIN, MOTOR4_MAX)
+                control_motor5 = clamp(control_motor5, MOTOR5_MIN, MOTOR5_MAX)
+                control_gripper = clamp(control_gripper, GRIPPER_MIN, GRIPPER_MAX)
                 timediff = time() - prev_time
                 prev_time = time()
                 status = 0
@@ -327,12 +325,11 @@ def main():
             setArmAgles(motorMsg, control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper)
             anglePub.publish(motorMsg)
             robotarm.run(motorMsg)
-            print('M1= %d, M2=%d, M3= %d, M4=%d, M5=%d, G=%d'%(control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper))
-            fhandle.write(str(motorMsg.data[0]) + ',' + str(motorMsg.data[1]) + ',' + str(motorMsg.data[2]) + ',' + str(motorMsg.data[3])
-                        + ',' + str(motorMsg.data[4]) + ',' + str(motorMsg.data[5]) + ',' + str(timediff_move) + '\n')
+            print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper))
+            fhandle.write(f'{motorMsg.data[0]:.2f}' + ',' + f'{motorMsg.data[1]:.2f}'  + ',' + f'{motorMsg.data[2]:.2f}'  + ',' + f'{motorMsg.data[3]:.2f}'
+                           + ',' + f'{motorMsg.data[4]:.2f}'  + ',' + f'{motorMsg.data[5]:.2f}'  + ',' + f'{timediff_move:.2f}' + '\n')
             fhandle.flush()
                 
-
     except Exception as e:
         print(e)
 

@@ -7,9 +7,6 @@ from sensor_msgs.msg import Image
 from rebearm_interfaces.msg import Detections
 from cv_bridge import CvBridge
 from ultralytics import YOLO
-import ncnn
-import numpy as np
-import cv2
 
 class YoloROS(Node):
 
@@ -22,7 +19,7 @@ class YoloROS(Node):
         self.declare_parameter("rgb_topic",                 "/yolo_ros/rgb_image")
         self.declare_parameter("annotated_topic",           "/yolo_ros/annotated_image")
         self.declare_parameter("detailed_topic",            "/yolo_ros/detection_result")
-        self.declare_parameter("threshold",                 0.25)
+        self.declare_parameter("threshold",                 0.5)
         self.declare_parameter("device",                    "cpu")
 
         self.yolo_model                 = self.get_parameter("yolo_model").get_parameter_value().string_value
@@ -66,14 +63,16 @@ class YoloROS(Node):
     def image_callback(self, rgb_image):
         start = time.time_ns()
         cv_image = self.bridge.imgmsg_to_cv2(rgb_image, desired_encoding="bgr8")
-        self.result = self.model(cv_image)
+        self.result = self.model(source=cv_image,
+                                         conf=self.threshold,
+                                         device=self.device,
+                                         verbose=False)
 
         # Calculate and log processing time
-        end = time.time_ns()
-        process_time = (end - start) / 1e6  # Convert to milliseconds
+        #end = time.time_ns()
+        #process_time = (end - start) / 1e6  # Convert to milliseconds
         #self.get_logger().info(f'Processing time: {process_time:.2f}ms')
 	
-	    #self.detection_msg.header       = rgb_image.header
         self.detection_msg.header.stamp = self.get_clock().now().to_msg()
 
         if (not self.class_list_set) and (self.result is not None):
@@ -93,11 +92,10 @@ class YoloROS(Node):
             self.detection_msg.confidence   = []
         
             for bbox, cls, conf in zip(self.result[0].boxes.xywh, self.result[0].boxes.cls, self.result[0].boxes.conf):
-
                 self.detection_msg.bbx_center_x.append(int(bbox[0]))
                 self.detection_msg.bbx_center_y.append(int(bbox[1]))
                 self.detection_msg.bbx_size_w.append(int(bbox[2]))
-                self.detection_msg.bbx_size_h.append(int(bbox[3]))
+                self.detection_msg.bbx_size_h.append(int(bbox[3])) 
                 self.detection_msg.class_id.append(int(cls))
                 self.detection_msg.confidence.append(float(conf))
 

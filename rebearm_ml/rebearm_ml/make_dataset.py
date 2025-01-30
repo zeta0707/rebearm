@@ -41,7 +41,7 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import PointStamped
 
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
 
@@ -117,9 +117,12 @@ def main():
     node = rclpy.create_node('dataset_node')        # generate node
 
     robotarm = Rebearm()
+    angles=robotarm.readAngle()
+    print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
     offset = robotarm.get_offsets()
-    print("Offsets:", offset)
+    print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
     robotarm.home()
+
     print('rebearm IK dataset collector')
 
     # just key check

@@ -35,7 +35,7 @@
 import os, sys
 from time import sleep, time
 import rclpy
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 
 from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
@@ -49,19 +49,22 @@ def main():
     rclpy.init()
 
     node = rclpy.create_node('mimic_offline_node')        # generate node
+    print('Rebearm Mimic offline controller')
+    print(msg)
+    print('CTRL-C to quit')
+
     robotarm = Rebearm()
-    robotarm.home()
+    angles=robotarm.readAngle()
+    print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
     offset = robotarm.get_offsets()
-    print("Offsets:", offset)
-    
-    print('Rebearm mimic human operation')
+    print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+    robotarm.home()
 
     try:
-        print(msg)
         rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_teleop/rebearm_teleop/script/')
         moveHistory = open(rosPath + 'automove.csv', 'r')
 
-        motorMsg = Int32MultiArray()
+        motorMsg = Float32MultiArray()
         setArmAgles(motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
 
         while(1):
@@ -75,7 +78,7 @@ def main():
             sys.stdout.write(str(motor1) + ',' + str(motor2) + ',' + str(motor3) + ',' + str(motor4) + ',' + str(motor5) + ',' + str(gripper) + ',' + str(time_diff))
             sys.stdout.flush()
 
-            setArmAgles(motorMsg, int(motor1), int(motor2), int(motor3), int(motor4), int(motor5), int(gripper))
+            setArmAgles(motorMsg, float(motor1), float(motor2), float(motor3), float(motor4), float(motor5), float(gripper))
             robotarm.run(motorMsg)
 
             try:

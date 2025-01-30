@@ -19,7 +19,7 @@ class YoloROS(Node):
         self.declare_parameter("rgb_topic",                 "/yolo_ros/rgb_image")
         self.declare_parameter("annotated_topic",           "/yolo_ros/annotated_image")
         self.declare_parameter("detailed_topic",            "/yolo_ros/detection_result")
-        self.declare_parameter("threshold",                 0.25)
+        self.declare_parameter("threshold",                 0.5)
         self.declare_parameter("device",                    "cpu")
 
         self.yolo_model                 = self.get_parameter("yolo_model").get_parameter_value().string_value
@@ -75,11 +75,10 @@ class YoloROS(Node):
 
         
         # Calculate and log processing time
-        end = time.time_ns()
-        process_time = (end - start) / 1e6  # Convert to milliseconds
+        #end = time.time_ns()
+        #process_time = (end - start) / 1e6  # Convert to milliseconds
         #self.get_logger().info(f'Processing time: {process_time:.2f}ms')
 	
-	    #self.detection_msg.header       = rgb_image.header
         self.detection_msg.header.stamp = self.get_clock().now().to_msg()
 
         if (not self.class_list_set) and (self.result is not None):

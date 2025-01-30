@@ -38,7 +38,7 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 import atexit
 from rclpy.qos import qos_profile_sensor_data
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 
 from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
@@ -46,7 +46,6 @@ from .submodules.myconfig import *
 msg = """
 Mimic Human's operation!
 Caution: need to be careful
-
 """
 
 class HumanGuideNode(Node):
@@ -60,27 +59,23 @@ class HumanGuideNode(Node):
                 ('step_deg', 20),
             ])
 
-        print('Rebearm mimic human operation')
+        print('Rebearm mimic online controller')
         print(msg)
-        self.max_deg = self.get_parameter_or('max_deg', Parameter('max_deg', Parameter.Type.INTEGER, 120)).get_parameter_value().integer_value
-        self.step_deg = self.get_parameter_or('step_deg', Parameter('step_deg', Parameter.Type.INTEGER, 20)).get_parameter_value().integer_value
-        print('max ang: %s rad/s, step: %s'%
-            (self.max_deg,
-            self.step_deg)
-        )
         print('CTRL-C to quit')
 
-        self.angleSub = self.create_subscription(Int32MultiArray, 'motor_angles', self.cb_angles, qos_profile_sensor_data)
-        self.motorMsg = Int32MultiArray()
+        self.angleSub = self.create_subscription(Float32MultiArray, 'motor_angles', self.cb_angles, qos_profile_sensor_data)
+        self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
 
         atexit.register(self.set_park)
 
         self.robotarm = Rebearm()
-        self.robotarm.home()
+        angles = self.robotarm.readAngle()
+        print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
-        print("Offsets:", offset)
-        
+        print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+        self.robotarm.home()
+
     def cb_angles(self, msg):
         control_motor1 = msg.data[0]
         control_motor2 = msg.data[1]
@@ -90,7 +85,7 @@ class HumanGuideNode(Node):
         control_gripper = msg.data[5]
         setArmAgles(self.motorMsg, control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper)
         self.robotarm.run(self.motorMsg)
-        print('M1= %d, M2=%d, M3= %d, M4=%d, M5=%d, G=%d'%(control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper))
+        print('M1= %.1f, M2=%.1f, M3= %.1f, M4=%.1f, M5=%.1f, G=%.1f'%(control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper))
 
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')

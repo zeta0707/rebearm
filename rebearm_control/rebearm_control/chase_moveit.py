@@ -52,7 +52,7 @@ from sensor_msgs.msg import JointState
 import atexit
 from rclpy.qos import qos_profile_sensor_data
 
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 from .submodules.myutil import Rebearm, trimLimits, setArmAgles
 from .submodules.myconfig import *
 
@@ -67,12 +67,13 @@ class ChaseMoveit(Node):
         atexit.register(self.set_park)
         
         self.robotarm = Rebearm()
+        angles = self.robotarm.readAngle()
+        print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
-        print("Offsets:", offset)
-        #can't move home from state pulisher, need to fix later
+        print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
         self.robotarm.home()
 
-        self.motorMsg = Int32MultiArray()
+        self.motorMsg = Float32MultiArray()
         setArmAgles(self.motorMsg, MOTOR1_ZERO, MOTOR2_ZERO, MOTOR3_ZERO, MOTOR4_ZERO, MOTOR5_ZERO, GRIPPER_OPEN)
        
         self._joint_sub = self.create_subscription(JointState, '/joint_states', self.moveit_callback, qos_profile_sensor_data)
@@ -87,10 +88,9 @@ class ChaseMoveit(Node):
         self.motorMsg.data[5] = trimLimits(math.degrees(cmd_msg.position[5]))
         #can't control air pump, then grip=0 always
         setArmAgles(self.motorMsg, self.motorMsg.data[0] , self.motorMsg.data[1] , self.motorMsg.data[2] , self.motorMsg.data[3], self.motorMsg.data[4], self.motorMsg.data[5])
-
         self.robotarm.run(self.motorMsg)
-        print( str(self.motorMsg.data[0]) + ':' + str(self.motorMsg.data[1]) + ':' + str(self.motorMsg.data[2]) + ':' + str(self.motorMsg.data[3])  
-              + ':' + str(self.motorMsg.data[4]) + ':' +  str(self.motorMsg.data[5]) )
+        print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(self.motorMsg.data[0],self.motorMsg.data[1],self.motorMsg.data[2],
+                                                                       self.motorMsg.data[3],self.motorMsg.data[4],self.motorMsg.data[5]))
 
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')

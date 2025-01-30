@@ -15,8 +15,8 @@ def generate_launch_description():
     )
     
     node = Node(
-      package='rebearm_yolo', executable='ncnn_ros', name='yolo_ros_node',
-      output='screen', emulate_tty=True,
+        package='rebearm_yolo', executable='ncnn_ros', name='yolo_ros_node',
+        output='screen', emulate_tty=True,
         parameters=[yolo_parameter]
     )
 

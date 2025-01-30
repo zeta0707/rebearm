@@ -39,7 +39,7 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from sensor_msgs.msg import Joy
 import atexit
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 from rclpy.qos import qos_profile_sensor_data
 
 from .submodules.myutil import Rebearm, clamp, setArmAgles
@@ -49,13 +49,13 @@ msg = """
 Control Your Robot!
 ---------------------------
 Moving around:
-Left lever left/right:  Base(M1), left/light
-Left lever up/down:     shoulder(M2) move
+Left lever left/right:  Waist(M1), left/light
+Left lever up/down:     Shoulder(M2) move
 Right lever up/down:    Elbow(M3) move
-Right lever left/right: Wrist(M4) move
-X   : gripper open/close toggle
-B   : M5 wrist
-L-2 : Move home
+Right lever left/right: Forearm(M4) move
+B   :                   Wrist(M5) move
+X   :                   gripper toggle
+L-2 :                   Move Home
 CTRL-C to quit
 """
 
@@ -80,7 +80,7 @@ class TeleopJoyNode(Node):
         )
         print('CTRL-C to quit')
 
-        self.anglePub = self.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
+        self.anglePub = self.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
 
         self.auto_mode = False
         self.chatCount= 0
@@ -97,11 +97,13 @@ class TeleopJoyNode(Node):
         atexit.register(self.set_park)
 
         self.robotarm = Rebearm()
-        self.robotarm.home()
+        angles = self.robotarm.readAngle()
+        print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
-        print("Offsets:", offset)
-        
-        self.motorMsg = Int32MultiArray()
+        print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+        self.robotarm.home()
+
+        self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
         setArmAgles(self.motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
 
@@ -158,18 +160,18 @@ class TeleopJoyNode(Node):
             self.keystroke = self.keystroke + 1
             #update angle, but not move yet
             if (joymsg.axes[0] != 0):
-                self.control_motor1 += int(joymsg.axes[0] * self.step_deg + 0.5)
-                self.control_motor1 = int(clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX))
+                self.control_motor1 += joymsg.axes[0] * self.step_deg 
+                self.control_motor1 = clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX)
             elif joymsg.axes[1] != 0:
-                self.control_motor2 += int(joymsg.axes[1] * self.step_deg + 0.5)
-                self.control_motor2 = int(clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX))
+                self.control_motor2 += joymsg.axes[1] * self.step_deg 
+                self.control_motor2 = clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX)
             elif joymsg.axes[3] != 0:
-                self.control_motor3 += int(joymsg.axes[3] * self.step_deg + 0.5)
-                self.control_motor3 = int(clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX))
+                self.control_motor3 += joymsg.axes[3] * self.step_deg 
+                self.control_motor3 = clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX)
             elif joymsg.axes[2] != 0:
-                self.control_motor4 += int(joymsg.axes[2] * self.step_deg + 0.5)
-                self.control_motor4 = int(clamp(self.control_motor4, MOTOR4_MIN, MOTOR4_MAX))
-
+                self.control_motor4 += joymsg.axes[2] * self.step_deg 
+                self.control_motor4 = clamp(self.control_motor4, MOTOR4_MIN, MOTOR4_MAX)
+                
             #over PER, then wait PER*CONT_JOY
             if (self.keystroke < CONT_JOY):
                 #print("short", self.keystroke, timediff)
@@ -192,9 +194,9 @@ class TeleopJoyNode(Node):
         setArmAgles(self.motorMsg, self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_motor5, self.control_gripper)
         self.robotarm.run(self.motorMsg)
         self.anglePub.publish(self.motorMsg)
-        print('M1= %d, M2=%d, M3= %d, M4=%d, M5=%d, G=%d'%(self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_motor5, self.control_gripper))
-        self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) + ',' + str(self.motorMsg.data[3])
-                            + ',' + str(self.motorMsg.data[4]) + ',' + str(self.motorMsg.data[5])+ ',' + str(timediff) + '\n')
+        print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(self.control_motor1, self.control_motor2, self.control_motor3, self.control_motor4, self.control_motor5, self.control_gripper))
+        self.fhandle.write(f'{self.motorMsg.data[0]:.2f}' + ',' + f'{self.motorMsg.data[1]:.2f}'  + ',' + f'{self.motorMsg.data[2]:.2f}'  + ',' + f'{self.motorMsg.data[3]:.2f}'
+                           + ',' + f'{self.motorMsg.data[4]:.2f}'  + ',' + f'{self.motorMsg.data[5]:.2f}'  + ',' + f'{timediff:.2f}' + '\n')
         self.fhandle.flush()
             
     def cb_timer(self):

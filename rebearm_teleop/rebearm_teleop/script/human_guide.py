@@ -39,7 +39,7 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 import atexit
 from rclpy.qos import qos_profile_sensor_data
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 
 from .submodules.myutil import Rebearm
 from .submodules.myconfig import *
@@ -47,7 +47,6 @@ from .submodules.myconfig import *
 msg = """
 Move Robot by hand
 ---------------------------
-
 """
 
 class HumanGuideNode(Node):
@@ -59,20 +58,22 @@ class HumanGuideNode(Node):
             parameters=[
             ])
 
-        print('Rebearm Human Guide controller')
+        print('Rebearm human guide controller')
         print(msg)
         print('CTRL-C to quit')
 
-        self.anglePub = self.create_publisher(Int32MultiArray, 'motor_angles', qos_profile_sensor_data)
-        self.motorMsg = Int32MultiArray()
+        self.anglePub = self.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
+        self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
 
         atexit.register(self.set_park)
 
         self.robotarm = Rebearm()
-        self.robotarm.home()
+        angles = self.robotarm.readAngle()
+        print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
-        print("Offsets:", offset)
+        print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+        self.robotarm.home()
 
         # timer callback
         self.timer = self.create_timer(TIMER_HGUIDE, self.cb_timer)
@@ -81,20 +82,18 @@ class HumanGuideNode(Node):
         self.fhandle = open(rosPath + 'automove.csv', 'w')
 
         self.prev_time = time()
-        self.prev_time_move = time()
-        self.timediff = 0.0
         self.robotarm.motors_off()
 
     def cb_timer(self):
         timediff = time() - self.prev_time
-        self.motorMsg.data = self.robotarm.readAngle()
-
-        self.timediff = time() - self.prev_time
         self.prev_time = time()
+        self.motorMsg.data = self.robotarm.readAngle()
                 
-        print('M1= %d, M2=%d, M3= %d, M4=%d, M5=%d, G=%d'%(self.motorMsg.data[0], self.motorMsg.data[1], self.motorMsg.data[2], self.motorMsg.data[3], self.motorMsg.data[4], self.motorMsg.data[5]))
-        self.fhandle.write(str(self.motorMsg.data[0]) + ',' + str(self.motorMsg.data[1]) + ',' + str(self.motorMsg.data[2]) 
-                           + ',' + str(self.motorMsg.data[3]) + ',' + str(self.motorMsg.data[4]) +  ',' + str(self.motorMsg.data[5]) +',' + str(timediff) + '\n')
+        print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(self.motorMsg.data[0],self.motorMsg.data[1],self.motorMsg.data[2],
+                                                                       self.motorMsg.data[3],self.motorMsg.data[4],self.motorMsg.data[5]))
+        self.fhandle.write(f'{self.motorMsg.data[0]:.2f}' + ',' + f'{self.motorMsg.data[1]:.2f}'  + ',' + f'{self.motorMsg.data[2]:.2f}'  + ',' + f'{self.motorMsg.data[3]:.2f}'
+                           + ',' + f'{self.motorMsg.data[4]:.2f}'  + ',' + f'{self.motorMsg.data[5]:.2f}'  + ',' + f'{timediff:.2f}' + '\n')
+
         self.fhandle.flush()
         self.anglePub.publish(self.motorMsg)
         

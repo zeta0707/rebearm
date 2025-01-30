@@ -49,7 +49,7 @@ from rclpy.logging import get_logger
 from rebearm_interfaces.msg import Detections
 from rclpy.qos import qos_profile_sensor_data
 import atexit
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32MultiArray
 
 from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
@@ -98,7 +98,7 @@ class IKnetYolo(Node):
         self._time_detected = 0.0
         self.detect_object = 0
 
-        self.motorMsg = Int32MultiArray()
+        self.motorMsg = Float32MultiArray()
         setArmAgles(self.motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
         self.get_logger().info("Setting Up control node...")
 
@@ -106,8 +106,11 @@ class IKnetYolo(Node):
         self.timer = self.create_timer(0.1, self.node_callback)
 
         self.robotarm = Rebearm()
+        angles = self.robotarm.readAngle()
+        print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
-        print("Offsets:", offset)
+        print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
+        self.robotarm.home()
         
         self.armStatus = 'HOMING'
         self.robotarm.home()
@@ -177,7 +180,7 @@ class IKnetYolo(Node):
 
             #motor move directly
             self.get_logger().info("Go to object")
-            self.motorMsg.data[0] = int(outputx)
+            self.motorMsg.data[0] = outputx
             self.motorMsg.data[1] = MOTOR_NOMOVE
             self.motorMsg.data[2] = MOTOR_NOMOVE
             self.motorMsg.data[3] = MOTOR_NOMOVE
@@ -185,22 +188,22 @@ class IKnetYolo(Node):
             self.robotarm.run(self.motorMsg)
             sleep(1.0)
             self.motorMsg.data[0] = MOTOR_NOMOVE
-            self.motorMsg.data[2] = int(outputy[1].item()+0.5)
-            self.motorMsg.data[3] = int(outputy[2].item()+0.5)
+            self.motorMsg.data[2] = outputy[1].item()
+            self.motorMsg.data[3] = outputy[2].item()
             self.robotarm.run(self.motorMsg)
             sleep(0.5)
             self.motorMsg.data[0] = MOTOR_NOMOVE
             #compenstate manually for far distance
             if self.blob_y < -0.45:
-                self.motorMsg.data[1] = int(outputy[0].item()+4.5)
+                self.motorMsg.data[1] = outputy[0].item()
             elif self.blob_y < -0.25:
-                self.motorMsg.data[1] = int(outputy[0].item()+2.5)
+                self.motorMsg.data[1] = outputy[0].item()
             elif self.blob_y < -0.10:
-                self.motorMsg.data[1] = int(outputy[0].item()+1.5)
+                self.motorMsg.data[1] = outputy[0].item()
             elif self.blob_y < 0.10:
-                self.motorMsg.data[1] = int(outputy[0].item()+0.5)
+                self.motorMsg.data[1] = outputy[0].item()
             else:
-                self.motorMsg.data[1] = int(outputy[0].item()-0.5)
+                self.motorMsg.data[1] = outputy[0].item()
             self.motorMsg.data[2] = MOTOR_NOMOVE
             self.motorMsg.data[3] = MOTOR_NOMOVE
             self.motorMsg.data[4] = MOTOR_NOMOVE
