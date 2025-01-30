@@ -157,33 +157,32 @@ class IKnetBall(Node):
 
             #motor move directly
             self.get_logger().info("Go to object")
+            #move x, and lift up a little
             self.motorMsg.data[0] = outputx
             self.motorMsg.data[1] = MOTOR_NOMOVE
-            self.motorMsg.data[2] = MOTOR_NOMOVE
-            self.motorMsg.data[3] = MOTOR_NOMOVE
+            self.motorMsg.data[2] = MOTOR3_HOME + 5.0
+            self.motorMsg.data[3] = MOTOR4_HOME + 5.0
             self.motorMsg.data[4] = MOTOR_NOMOVE
             self.robotarm.run(self.motorMsg)
             sleep(1.0)
+            #compensate motor2,3
             self.motorMsg.data[0] = MOTOR_NOMOVE
-            self.motorMsg.data[2] = outputy[1].item()
-            self.motorMsg.data[3] = outputy[2].item()
+            self.motorMsg.data[2] = outputy[1].item() + 3.0
+            self.motorMsg.data[3] = outputy[2].item() + 5.0
             self.robotarm.run(self.motorMsg)
             sleep(0.5)
             self.motorMsg.data[0] = MOTOR_NOMOVE
             #compenstate manually for far distance
             if self.blob_y < -0.45:
-                self.motorMsg.data[1] = outputy[0].item()+0.0
+                self.motorMsg.data[1] = outputy[0].item()-6.0
             elif self.blob_y < -0.25:
-                self.motorMsg.data[1] = outputy[0].item()+0.0
+                self.motorMsg.data[1] = outputy[0].item()-5.0
             elif self.blob_y < -0.10:
-                self.motorMsg.data[1] = outputy[0].item()+0.0
+                self.motorMsg.data[1] = outputy[0].item()-4.0
             elif self.blob_y < 0.10:
-                self.motorMsg.data[1] = outputy[0].item()+0.0
+                self.motorMsg.data[1] = outputy[0].item()-3.0
             else:
-                self.motorMsg.data[1] = outputy[0].item()+0.0
-
-            self.motorMsg.data[2] = MOTOR_NOMOVE
-            self.motorMsg.data[3] = MOTOR_NOMOVE
+                self.motorMsg.data[1] = outputy[0].item()-2.0
             self.robotarm.run(self.motorMsg)
             sleep(0.5)
 
