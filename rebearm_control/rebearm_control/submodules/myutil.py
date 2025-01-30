@@ -244,9 +244,6 @@ class Rebearm(Node):
         self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
         moveJoint(M6_ID, self.end, self.motorMsg)
 
-        self.motorMsg.data[4] = MOTOR5_ZERO
-        moveJoint(5, self.m5, self.motorMsg)
-
         self.motorMsg.data[1] = MOTOR2_HOME+5.0    #move reverse at first
         moveJoint(2, self.m2, self.motorMsg)
 
@@ -265,6 +262,9 @@ class Rebearm(Node):
         self.motorMsg.data[1] = MOTOR2_ZERO
         moveJoint(2, self.m2, self.motorMsg)
 
+        self.motorMsg.data[4] = MOTOR5_ZERO
+        moveJoint(5, self.m5, self.motorMsg)
+
         #somehow doesn't move complete, then compensate here
         moveJointAll(self.m1, self.m2, self.m3, self.m4, self.m5, self.end, self.motorMsg)
         print("Zoering Done")
@@ -273,12 +273,12 @@ class Rebearm(Node):
         print("Run 90degree")
         self.motors_on()
 
-        self.motorMsg.data[2] = MOTOR_RIGHT
-        moveJoint(3, self.m3, self.motorMsg)
-
         self.motorMsg.data[3] = MOTOR_RIGHT
         moveJoint(4, self.m4, self.motorMsg)
         
+        self.motorMsg.data[2] = MOTOR_RIGHT
+        moveJoint(3, self.m3, self.motorMsg)
+
         self.motorMsg.data[1] = 0.0
         moveJoint(2, self.m2, self.motorMsg)
 
