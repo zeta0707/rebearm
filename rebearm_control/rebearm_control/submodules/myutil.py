@@ -8,7 +8,7 @@ from . myconfig import *
 from std_msgs.msg import Float32MultiArray
 
 import serial
-import lewansoul_lx16a
+from . import lewansoul_lx16a
 
 SERIAL_PORT = '/dev/buslinker2'
 M6_ID = 6
