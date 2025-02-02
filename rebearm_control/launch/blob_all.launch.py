@@ -19,8 +19,8 @@ def get_parameters(context):
         config_path = os.path.join(package_share_dir, 'param', 'green.yaml')
     elif color == 'yellow':
         config_path = os.path.join(package_share_dir, 'param', 'yellow.yaml')
-    elif color == 'pink':
-        config_path = os.path.join(package_share_dir, 'param', 'pink.yaml')
+    elif color == 'red':
+        config_path = os.path.join(package_share_dir, 'param', 'red.yaml')
     else:
         config_path = os.path.join(package_share_dir, 'param', 'blue.yaml')
 
@@ -52,7 +52,7 @@ def generate_launch_description():
     color = DeclareLaunchArgument(
     'color',
     default_value='green',
-    description='Choose green, yellow, pink, or blue'
+    description='Choose green, yellow, red, or blue'
     )
 
     return LaunchDescription([
