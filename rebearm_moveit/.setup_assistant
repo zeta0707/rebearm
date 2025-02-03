@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: rebearm_description
+    relative_path: xacro/rebearm.urdf.xacro
+  srdf:
+    relative_path: config/rebearm.srdf
+  package_settings:
+    author_name: Changwhan Lee
+    author_email: zeta0707@gmail.com
+    generated_timestamp: 1738583166
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
