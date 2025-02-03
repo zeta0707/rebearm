@@ -58,7 +58,7 @@ $ ./create_udev_rules_fit0701.sh
 
 ### **Verify USB camera**  
 ```bash
-cd ~/ros2_ws
+$ cd ~/ros2_ws
 #  terminal #1
 $ ros2 launch rebearm_cv usbcam.launch.py
 #  terminal #2  
@@ -74,7 +74,7 @@ Control Robot Arm with gamepad/jostick
 </p>
 
 ```bash
-cd ~/ros2_ws   
+$ cd ~/ros2_ws   
 $ ros2 launch monicar2_teleop joy_all.launch.py
 
 Left lever left/right:  Waist(M1), left/light
@@ -93,7 +93,7 @@ Control Robot Arm with keyboard
 </p>
 
 ```bash
-cd ~/ros2_ws   
+$ cd ~/ros2_ws   
 $ ros2 run rebearm_teleop teleop_keyboard
 
 a/d : base(M1), left/light
@@ -113,7 +113,7 @@ Make angle list by human operation with arm is power off
 </p>   
 
 ```bash
-cd ~/ros2_ws   
+$ cd ~/ros2_ws   
 $ ros2 run rebearm_teleop human_guide
 ```
 
@@ -124,7 +124,7 @@ Autonomous move for mimicing human operation
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 $ ros2 run rebearm_teleop mimic_offline
 #or
 $ ros2 run rebearm_teleop mimic_online
@@ -137,7 +137,7 @@ Find the any color box from camera, then pick it up and place down
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 $ ros2 launch rebearm_control blob_all.launch.py 
 #or
 $ ros2 launch rebearm_control blob_all.launch.py color:=green
@@ -150,7 +150,7 @@ Find the object using Yolo11 from camera, then pick it up and place down
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 $ ros2 launch rebearm_control yolo_all.launch.py
 ```
 
@@ -161,7 +161,7 @@ joint_states publisher GUI -> robot in rviz, ie simulation
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 $ ros2 launch rebearm_description rebearm_description.launch.py
 ```
 
@@ -172,7 +172,7 @@ joint_states publisher GUI -> real robot, not simulation
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 $ ros2 launch rebearm_description state_all.launch.py
 ```
 
@@ -183,7 +183,7 @@ Camera -> Blob, Y -> neural network -> move robot arm
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 #terminal #1
 $ ros2 launch rebearm_control blob_getdata.launch.py
 #terminal #2
@@ -197,7 +197,7 @@ Camera -> Yolo, Y -> neural network -> move robot arm
 </p>
 
 ```bash
-cd ~/ros2_ws  
+$ cd ~/ros2_ws  
 #terminal #1
 $ ros2 launch rebearm_control yolo_getdata.launch.py 
 #terminal #2
