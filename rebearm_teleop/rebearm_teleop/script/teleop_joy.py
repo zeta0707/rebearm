@@ -160,7 +160,7 @@ class TeleopJoyNode(Node):
             self.keystroke = self.keystroke + 1
             #update angle, but not move yet
             if (joymsg.axes[0] != 0):
-                self.control_motor1 += joymsg.axes[0] * self.step_deg 
+                self.control_motor1 -= joymsg.axes[0] * self.step_deg 
                 self.control_motor1 = clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX)
             elif joymsg.axes[1] != 0:
                 self.control_motor2 += joymsg.axes[1] * self.step_deg 
