@@ -49,13 +49,13 @@ msg = """
 Control Your Robot!
 ---------------------------
 Moving around:
-Left lever left/right:  Waist(M1), left/light
-Left lever up/down:     Shoulder(M2) move
-Right lever up/down:    Elbow(M3) move
-Right lever left/right: Forearm(M4) move
-B   :                   Wrist(M5) move
-X   :                   gripper toggle
-L-2 :                   Move Home
+Left lever left/right:    Waist(M1), left/light
+Left lever up/down:       Shoulder(M2) move
+Right lever up/down:      Elbow(M3) move
+L1 + Right lever up/down: Forearm(M4) move
+Right lever left/right:   Wrist(M5) move 
+X   :                     gripper toggle
+START :                   Move Home
 CTRL-C to quit
 """
 
@@ -122,7 +122,7 @@ class TeleopJoyNode(Node):
         PER = 0.05    #50ms
 
         # go home position
-        if joymsg.buttons[6] == 1 and self.mode_button_last == 0:
+        if joymsg.buttons[9] == 1 and self.mode_button_last == 0:
             print('Home position')
             self.robotarm.home()
             self.control_motor1 = MOTOR1_HOME
@@ -133,14 +133,6 @@ class TeleopJoyNode(Node):
             self.control_gripper = GRIPPER_OPEN
             self.keystroke = 0
             self.mode_button_last = joymsg.buttons[6]
-
-        # M5 wrist
-        elif joymsg.buttons[1] == 1 and self.mode_button_last == 0:
-            if self.control_motor5 == MOTOR5_HOME:
-                self.control_motor5 = MOTOR5_ZERO
-            else:
-                self.control_motor5 = MOTOR5_HOME
-            self.mode_button_last = joymsg.buttons[1]
 
         # gripper open/close
         elif joymsg.buttons[3] == 1 and self.mode_button_last == 0:
@@ -166,11 +158,15 @@ class TeleopJoyNode(Node):
                 self.control_motor2 += joymsg.axes[1] * self.step_deg 
                 self.control_motor2 = clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX)
             elif joymsg.axes[3] != 0:
-                self.control_motor3 += joymsg.axes[3] * self.step_deg 
-                self.control_motor3 = clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX)
+                if joymsg.buttons[6] == 1:
+                    self.control_motor4 += joymsg.axes[3] * self.step_deg 
+                    self.control_motor4 = clamp(self.control_motor4, MOTOR4_MIN, MOTOR4_MAX) 
+                else:
+                    self.control_motor3 += joymsg.axes[3] * self.step_deg 
+                    self.control_motor3 = clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX)                                     
             elif joymsg.axes[2] != 0:
-                self.control_motor4 += joymsg.axes[2] * self.step_deg 
-                self.control_motor4 = clamp(self.control_motor4, MOTOR4_MIN, MOTOR4_MAX)
+                self.control_motor5 += joymsg.axes[2] * self.step_deg 
+                self.control_motor5 = clamp(self.control_motor5, MOTOR5_MIN, MOTOR5_MAX)
                 
             #over PER, then wait PER*CONT_JOY
             if (self.keystroke < CONT_JOY):

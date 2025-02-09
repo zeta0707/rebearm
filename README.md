@@ -78,13 +78,13 @@ Control Robot Arm with gamepad/jostick
 $ cd ~/ros2_ws   
 $ ros2 launch monicar2_teleop joy_all.launch.py
 
-Left lever left/right:  Waist(M1), left/light
-Left lever up/down:     Shoulder(M2) move
-Right lever up/down:    Elbow(M3) move
-Right lever left/right: Forearm(M4) move
-B   :                   Wrist(M5) move
-X   :                   gripper toggle
-L-2 :                   Move Home
+Left lever left/right:    Waist(M1), left/light
+Left lever up/down:       Shoulder(M2) move
+Right lever up/down:      Elbow(M3) move
+L1 + Right lever up/down: Forearm(M4) move
+Right lever left/right:   Wrist(M5) move 
+X   :                     gripper toggle
+START :                   Move Home
 ```
 
 ### **Play with keyboard**  
@@ -97,12 +97,15 @@ Control Robot Arm with keyboard
 $ cd ~/ros2_ws   
 $ ros2 run rebearm_teleop teleop_keyboard
 
-a/d : base(M1), left/light
-w/x : shoulder(M2) move
-j/l : Elbow(M3) move
-i/, : Wrist(M4) move
-g/G : Gripper
+a/d : Waist(M1), left/light
+w/x : Soulder(M2) move
+i/, : Elbow(M3) move
+I/< : Forearm(M4) move
+j/l : wrist(M5) move
+g/G : Gripper move
 h   : Move home
+
+### do_calib:=1 parameter required ###
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
 ```

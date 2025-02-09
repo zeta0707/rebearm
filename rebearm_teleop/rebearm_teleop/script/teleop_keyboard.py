@@ -54,14 +54,16 @@ Control Your Robot!
 Moving around:
 a/d : Waist(M1), left/light
 w/x : Soulder(M2) move
-j/l : Elbow(M3) move
-i/, : Forearm(M4) move
-t/T : wrist(M5) move
+i/, : Elbow(M3) move
+I/< : Forearm(M4) move
+j/l : wrist(M5) move
 g/G : Gripper move
-
 h   : Move home
+
+### do_calib:=1 parameter required ###
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
+
 CTRL-C to quit
 """
 
@@ -159,28 +161,28 @@ def main():
         print(msg)
         while(1):
             key = get_key(settings)
-            if key == 'x':              # motor1
+            if key == 'x':              # motor2
                 control_motor2 = check_angle_range(control_motor2 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 'w':            # motor1
+            elif key == 'w':            # motor2
                 control_motor2 = check_angle_range(control_motor2 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 'j':            # motor2
-                control_motor3 = check_angle_range(control_motor3 - node.ANG_STEP, node.MAX_ANG)
-                status = status + 1
-            elif key == 'l':            # motor2
-                control_motor3 = check_angle_range(control_motor3 + node.ANG_STEP, node.MAX_ANG)
-                status = status + 1
-            elif key == ',':            # motor3
+            elif key == '<':            # motor4
                 control_motor4 = check_angle_range(control_motor4 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 'i':            # motor3
+            elif key == 'I':            # motor4
                 control_motor4 = check_angle_range(control_motor4 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 'a':            # motor0
+            elif key == ',':            # motor3
+                control_motor3 = check_angle_range(control_motor3 - node.ANG_STEP, node.MAX_ANG)
+                status = status + 1
+            elif key == 'i':            # motor3
+                control_motor3 = check_angle_range(control_motor3 + node.ANG_STEP, node.MAX_ANG)
+                status = status + 1
+            elif key == 'a':            # motor1
                 control_motor1 = check_angle_range(control_motor1 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 'd':            # motor0
+            elif key == 'd':            # motor1
                 control_motor1 = check_angle_range(control_motor1 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
             elif key == 'g':            # gripper close
@@ -189,10 +191,10 @@ def main():
             elif key == 'G':            # gripper open 
                 control_gripper = check_angle_range(control_gripper + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 't':            # motor5
+            elif key == 'j':            # motor5
                 control_motor5 = check_angle_range(control_motor5 - node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
-            elif key == 'T':            # motor5
+            elif key == 'l':            # motor5
                 control_motor5 = check_angle_range(control_motor5 + node.ANG_STEP, node.MAX_ANG)
                 status = status + 1
 
