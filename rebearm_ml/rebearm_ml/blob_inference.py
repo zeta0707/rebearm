@@ -167,22 +167,14 @@ class IKnetBall(Node):
             sleep(1.0)
             #compensate motor2,3
             self.motorMsg.data[0] = MOTOR_NOMOVE
-            self.motorMsg.data[2] = outputy[1].item() + 3.0
-            self.motorMsg.data[3] = outputy[2].item() + 5.0
+            self.motorMsg.data[2] = outputy[1].item() 
+            self.motorMsg.data[3] = outputy[2].item()
             self.robotarm.run(self.motorMsg)
             sleep(0.5)
             self.motorMsg.data[0] = MOTOR_NOMOVE
             #compenstate manually for far distance
-            if self.blob_y < -0.45:
-                self.motorMsg.data[1] = outputy[0].item()-6.0
-            elif self.blob_y < -0.25:
-                self.motorMsg.data[1] = outputy[0].item()-5.0
-            elif self.blob_y < -0.10:
-                self.motorMsg.data[1] = outputy[0].item()-4.0
-            elif self.blob_y < 0.10:
-                self.motorMsg.data[1] = outputy[0].item()-3.0
-            else:
-                self.motorMsg.data[1] = outputy[0].item()-2.0
+            self.motorMsg.data[1] = outputy[0].item() + self.blob_y*8.0
+            print(f"output1: {self.motorMsg.data[1]}")
             self.robotarm.run(self.motorMsg)
             sleep(0.5)
 

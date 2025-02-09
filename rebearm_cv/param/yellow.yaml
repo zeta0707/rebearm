@@ -1,4 +1,4 @@
 /**:
   ros__parameters:
-    blob_min: [10, 158, 78]
+    blob_min: [15, 90, 0]
     blob_max: [110, 255, 255]

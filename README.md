@@ -22,6 +22,7 @@ X86 64bit Laptop(Asus Zenbook)
 ├── rebearm_description   => Show robot model
 ├── rebearm_interfaces    => Custom Msg 
 ├── rebearm_ml            => AI/ML
+├── rebearm_moveit        => Moveit2
 ├── rebearm_teleop        => Teleoperation by human
 ├── rebearm_yolo          => Start Yolo for object detection
 ├── script                => configure buslinker, camera
@@ -202,4 +203,15 @@ $ cd ~/ros2_ws
 $ ros2 launch rebearm_control yolo_getdata.launch.py 
 #terminal #2
 $ ros2 launch rebearm_ml yolo_nn.launch.py
+```
+### **Moveit2**
+robotic manipulation platform for ROS 2    
+<p align="center">
+    <img src='Images/blank.gif' width=500 />
+</p>
+
+```bash
+$ cd ~/ros2_ws  
+#terminal #1
+$ rros2 launch rebearm_moveit demo.launch.py 
 ```
