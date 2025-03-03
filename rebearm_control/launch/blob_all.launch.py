@@ -51,7 +51,7 @@ def generate_launch_description():
 
     color = DeclareLaunchArgument(
     'color',
-    default_value='green',
+    default_value='yellow',
     description='Choose green, yellow, red, or blue'
     )
 

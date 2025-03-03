@@ -17,7 +17,7 @@ class CameraeNode(Node):
         parameters=[
         ])
 
-        self.cap = cv2.VideoCapture('/dev/fit0701')
+        self.cap = cv2.VideoCapture('/dev/rebecam')
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.cap.set(cv2.CAP_PROP_FPS, 30)

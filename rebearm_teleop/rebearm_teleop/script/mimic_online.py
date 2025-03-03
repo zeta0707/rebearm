@@ -83,9 +83,9 @@ class HumanGuideNode(Node):
         control_motor4 = msg.data[3]
         control_motor5 = msg.data[4]
         control_gripper = msg.data[5]
-        if control_motor1 == MOTOR_HOME:
+        if control_motor1 == MOTOR_HOMING:
             self.robotarm.home()
-            print("HOME")
+            print("Moving HOME")
         else:
             setArmAgles(self.motorMsg, control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper)
             self.robotarm.run(self.motorMsg)

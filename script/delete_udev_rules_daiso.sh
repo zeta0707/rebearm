@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "delete remap video*"
-echo "sudo rm  /etc/udev/rules.d/fit0701.rules"
-sudo rm   /etc/udev/rules.d/fit0701.rules
+echo "sudo rm  /etc/udev/rules.d/daiso.rules"
+sudo rm   /etc/udev/rules.d/daiso.rules
 echo " "
 echo "Restarting udev"
 echo ""

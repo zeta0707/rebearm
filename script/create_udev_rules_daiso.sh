@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "remap video* of DFRbot fit0701 to rebecam"
-sudo cp fit0701.rules  /etc/udev/rules.d
+echo "remap video* of Daiso camera to rebecam"
+sudo cp daiso.rules  /etc/udev/rules.d
 echo " "
 echo "Restarting udev"
 echo ""
