@@ -124,6 +124,8 @@ class TeleopJoyNode(Node):
         # go home position
         if joymsg.buttons[9] == 1 and self.mode_button_last == 0:
             print('Home position')
+            setArmAgles(self.motorMsg, MOTOR_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)
+            self.anglePub.publish(self.motorMsg)
             self.robotarm.home()
             self.control_motor1 = MOTOR1_HOME
             self.control_motor2 = MOTOR2_HOME
