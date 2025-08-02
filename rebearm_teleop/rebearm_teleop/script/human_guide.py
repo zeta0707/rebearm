@@ -40,6 +40,7 @@ from rclpy.parameter import Parameter
 import atexit
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float32MultiArray
+import math
 
 from .submodules.myutil import Rebearm
 from .submodules.myconfig import *
@@ -48,6 +49,19 @@ msg = """
 Move Robot by hand
 ---------------------------
 """
+def lists_not_close(list1, list2, rel_tol=1e-5, abs_tol=0.5):
+    """
+    Check if any corresponding elements in two lists are NOT close
+    Returns True if ANY pair of elements are not close
+    """
+    if len(list1) != len(list2):
+        return True  # Different lengths = not close
+    
+    for a, b in zip(list1, list2):
+        if not math.isclose(a, b, rel_tol=rel_tol, abs_tol=abs_tol):
+            return True  # Found elements that are not close
+    
+    return False  # All elements are close
 
 class HumanGuideNode(Node):
 
@@ -65,16 +79,17 @@ class HumanGuideNode(Node):
         self.anglePub = self.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
         self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
-
         atexit.register(self.set_park)
 
         self.robotarm = Rebearm()
+        #just check arm's current position
         angles = self.robotarm.readAngle()
         print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
         print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
         self.robotarm.home()
 
+        self.prev_angles = self.robotarm.readAngle()
         # timer callback
         self.timer = self.create_timer(TIMER_HGUIDE, self.cb_timer)
 
@@ -87,15 +102,20 @@ class HumanGuideNode(Node):
     def cb_timer(self):
         timediff = time() - self.prev_time
         self.prev_time = time()
-        self.motorMsg.data = self.robotarm.readAngle()
-                
-        print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(self.motorMsg.data[0],self.motorMsg.data[1],self.motorMsg.data[2],
-                                                                       self.motorMsg.data[3],self.motorMsg.data[4],self.motorMsg.data[5]))
-        self.fhandle.write(f'{self.motorMsg.data[0]:.2f}' + ',' + f'{self.motorMsg.data[1]:.2f}'  + ',' + f'{self.motorMsg.data[2]:.2f}'  + ',' + f'{self.motorMsg.data[3]:.2f}'
-                           + ',' + f'{self.motorMsg.data[4]:.2f}'  + ',' + f'{self.motorMsg.data[5]:.2f}'  + ',' + f'{timediff:.2f}' + '\n')
+        angles = self.robotarm.readAngle()
 
-        self.fhandle.flush()
-        self.anglePub.publish(self.motorMsg)
+        #only publish topic, write to file when change angles
+        if lists_not_close(self.prev_angles, angles):
+            self.motorMsg.data = angles
+            print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(self.motorMsg.data[0],self.motorMsg.data[1],self.motorMsg.data[2],
+                                                                        self.motorMsg.data[3],self.motorMsg.data[4],self.motorMsg.data[5]))
+            self.fhandle.write(f'{self.motorMsg.data[0]:.2f}' + ',' + f'{self.motorMsg.data[1]:.2f}'  + ',' + f'{self.motorMsg.data[2]:.2f}'  + ',' + f'{self.motorMsg.data[3]:.2f}'
+                            + ',' + f'{self.motorMsg.data[4]:.2f}'  + ',' + f'{self.motorMsg.data[5]:.2f}'  + ',' + f'{timediff:.2f}' + '\n')
+
+            self.fhandle.flush()
+            self.anglePub.publish(self.motorMsg)
+        
+        self.prev_angles = angles
         
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')

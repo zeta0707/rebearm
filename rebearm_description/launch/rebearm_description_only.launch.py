@@ -29,7 +29,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "description_package",
             default_value="rebearm_description",
-            description="Description package with robot URDF/xacro files. Usually the argument \
+            description="State Publisher + Description package with robot URDF/xacro files. Usually the argument \
         is not set, it enables use of a custom description.",
         )
     )
@@ -55,9 +55,9 @@ def generate_launch_description():
             "home_parameter",
             default_value=os.path.join(
                 get_package_share_directory('rebearm_description'),
-                'param/intis.yaml'
+                'param/inits.yaml'
             ),
-            description="start position"
+            description="initial position"
         )
     )
 
@@ -83,21 +83,23 @@ def generate_launch_description():
 
     robot_description = {"robot_description": robot_description_content}
 
-    joint_state_publisher_node = Node(
-        package="joint_state_publisher_gui",  executable="joint_state_publisher_gui",
-        parameters=[home_parameter],
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare(description_package), "rviz", "rebearm.rviz"]
     )
 
     robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="both",
-        parameters=[robot_description, home_parameter],
+        package="robot_state_publisher", executable="robot_state_publisher", output="both",
+        parameters=[robot_description],
+    )
+
+    rviz_node = Node(
+        package="rviz2", executable="rviz2", name="rviz2", output="log",
+        arguments=["-d", rviz_config_file],
     )
 
     nodes = [
-        joint_state_publisher_node,
         robot_state_publisher_node,
+        rviz_node,
     ]
 
     return LaunchDescription(declared_arguments + nodes)

@@ -65,4 +65,4 @@ CONT_JOY = 3            #don't move untill CONT_JOY
 CONT_KEY = 3            #don't move untill CONT_KEY*100ms
 
 #human_guide parameter
-TIMER_HGUIDE = 0.2      #how frequent angle capture
+TIMER_HGUIDE = 0.05      #how frequent angle capture

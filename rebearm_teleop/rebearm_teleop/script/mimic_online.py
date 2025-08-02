@@ -39,6 +39,8 @@ from rclpy.parameter import Parameter
 import atexit
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float32MultiArray
+from sensor_msgs.msg import JointState
+import math
 
 from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
@@ -47,6 +49,50 @@ msg = """
 Mimic Human's operation!
 Caution: need to be careful
 """
+
+class JointStateFromData(Node):
+    def __init__(self):
+        super().__init__('joint_state_from_data')
+        
+        # Publisher for joint states
+        self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)        
+     
+        # Joint names - MUST match your URDF exactly
+        self.joint_names = [
+            'joint1',
+            'joint2', 
+            'joint3',
+            'joint4',
+            'joint5',
+            'joint6'
+        ]
+        
+        # Current joint positions from your msg.data
+        self.current_positions = [0.0] * 6
+        self.get_logger().info('Joint State Publisher from msg.data started')
+        
+    def update_from_msg_data(self, msg_data):
+        # If msg.data is in degrees, convert to radians
+        self.current_positions = [math.radians(angle) for angle in msg_data]
+    
+    def publish_joint_states(self):
+        """Publish current joint states to /joint_states topic"""
+        joint_state = JointState()
+        
+        # Set timestamp
+        joint_state.header.stamp = self.get_clock().now().to_msg()
+        joint_state.header.frame_id = ''
+        
+        # Set joint data
+        joint_state.name = self.joint_names
+        joint_state.position = self.current_positions
+        
+        # Optional: set velocities and efforts (leave empty if not needed)
+        joint_state.velocity = []
+        joint_state.effort = []
+        
+        # Publish the message
+        self.joint_pub.publish(joint_state)
 
 class HumanGuideNode(Node):
 
@@ -63,9 +109,15 @@ class HumanGuideNode(Node):
         print(msg)
         print('CTRL-C to quit')
 
+        # motor angle changed by topics
         self.angleSub = self.create_subscription(Float32MultiArray, 'motor_angles', self.cb_angles, qos_profile_sensor_data)
+        # timer callback
+        self.timer = self.create_timer(TIMER_HGUIDE, self.cb_timer)
+
         self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
+
+        self.jsNode = JointStateFromData()
 
         atexit.register(self.set_park)
 
@@ -76,6 +128,10 @@ class HumanGuideNode(Node):
         print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
         self.robotarm.home()
 
+    def cb_timer(self):
+        self.jsNode.update_from_msg_data(self.motorMsg.data)
+        self.jsNode.publish_joint_states()
+           
     def cb_angles(self, msg):
         control_motor1 = msg.data[0]
         control_motor2 = msg.data[1]
@@ -83,6 +139,10 @@ class HumanGuideNode(Node):
         control_motor4 = msg.data[3]
         control_motor5 = msg.data[4]
         control_gripper = msg.data[5]
+
+        self.jsNode.update_from_msg_data(msg.data)
+        self.jsNode.publish_joint_states()
+
         if control_motor1 == MOTOR_HOMING:
             self.robotarm.home()
             print("Moving HOME")

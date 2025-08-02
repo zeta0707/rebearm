@@ -16,7 +16,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "description_package",
             default_value="rebearm_description",
-            description="Description package with robot URDF/xacro files.",
+            description="Description package",
         )
     )
     # Initialize Arguments

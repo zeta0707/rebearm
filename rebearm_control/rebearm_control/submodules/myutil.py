@@ -10,8 +10,8 @@ from std_msgs.msg import Float32MultiArray
 from . import lx16a
 
 SERIAL_PORT = '/dev/buslinker2'
-M6_ID = 6
-M6_IDM1 = (M6_ID - 1)
+GRIP_ID = 6
+GRIP_IDM1 = (GRIP_ID - 1)
 
 Tfactor = 25        #value to LX16A time
 T1Factor = 0.3      #300ms more wait
@@ -93,7 +93,7 @@ def moveJoint(id, joint, mMSG):
         return
 
     #gripper, don't read angle
-    if (id == M6_ID):
+    if (id == GRIP_ID):
         joint.move_to(tar_ang)
         sleep(1.0)
     else:
@@ -195,8 +195,8 @@ class Rebearm(Node):
         print("Pickup...")
         self.m1.motors_on()
 
-        self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
-        moveJoint(M6_ID, self.end, self.motorMsg)
+        self.motorMsg.data[GRIP_IDM1] = GRIPPER_OPEN
+        moveJoint(GRIP_ID, self.end, self.motorMsg)
 
         self.motorMsg.data[1] = (MOTOR2_HOME + 30.0)
         moveJoint(2, self.m2, self.motorMsg)
@@ -205,8 +205,8 @@ class Rebearm(Node):
         print("Homing...")
         self.motors_on()
 
-        self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
-        moveJoint(M6_ID, self.end, self.motorMsg)
+        self.motorMsg.data[GRIP_IDM1] = GRIPPER_OPEN
+        moveJoint(GRIP_ID, self.end, self.motorMsg)
 
         self.motorMsg.data[3] = MOTOR4_HOME + 15.0
         moveJoint(4, self.m4, self.motorMsg)
@@ -241,8 +241,8 @@ class Rebearm(Node):
         print("Zeroing...")
         self.motors_on()
 
-        self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
-        moveJoint(M6_ID, self.end, self.motorMsg)
+        self.motorMsg.data[GRIP_IDM1] = GRIPPER_OPEN
+        moveJoint(GRIP_ID, self.end, self.motorMsg)
 
         self.motorMsg.data[1] = MOTOR2_HOME+5.0    #move reverse at first
         moveJoint(2, self.m2, self.motorMsg)
@@ -285,7 +285,7 @@ class Rebearm(Node):
         self.motorMsg.data[0] = MOTOR1_HOME
         moveJoint(1, self.m1, self.motorMsg)
 
-        self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
+        self.motorMsg.data[GRIP_IDM1] = GRIPPER_OPEN
         self.motorMsg.data[4] = MOTOR5_HOME
 
         #somehow doesn't move complete, then compensate here
@@ -306,8 +306,8 @@ class Rebearm(Node):
             moveJoint(5, self.m5, self.motorMsg)
 
         #grap action
-        self.motorMsg.data[M6_IDM1] = GRIPPER_CLOSE
-        moveJoint(M6_ID, self.end, self.motorMsg)
+        self.motorMsg.data[GRIP_IDM1] = GRIPPER_CLOSE
+        moveJoint(GRIP_ID, self.end, self.motorMsg)
 
         #lift up
         self.motorMsg.data[1] = (MOTOR2_HOME + 10.0)
@@ -335,8 +335,8 @@ class Rebearm(Node):
         self.motorMsg.data[3] = MOTOR4_PICKUP
         moveJoint(4, self.m4, self.motorMsg)
 
-        self.motorMsg.data[M6_IDM1] = GRIPPER_OPEN
-        moveJoint(M6_ID, self.end, self.motorMsg)
+        self.motorMsg.data[GRIP_IDM1] = GRIPPER_OPEN
+        moveJoint(GRIP_ID, self.end, self.motorMsg)
 
         #place action, lift up
         self.motorMsg.data[2] =(MOTOR3_HOME + 10.0)
