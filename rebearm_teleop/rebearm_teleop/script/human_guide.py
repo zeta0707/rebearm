@@ -42,26 +42,13 @@ from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float32MultiArray
 import math
 
-from .submodules.myutil import Rebearm
+from .submodules.myutil import Rebearm, lists_not_close
 from .submodules.myconfig import *
 
 msg = """
 Move Robot by hand
 ---------------------------
 """
-def lists_not_close(list1, list2, rel_tol=1e-5, abs_tol=0.5):
-    """
-    Check if any corresponding elements in two lists are NOT close
-    Returns True if ANY pair of elements are not close
-    """
-    if len(list1) != len(list2):
-        return True  # Different lengths = not close
-    
-    for a, b in zip(list1, list2):
-        if not math.isclose(a, b, rel_tol=rel_tol, abs_tol=abs_tol):
-            return True  # Found elements that are not close
-    
-    return False  # All elements are close
 
 class HumanGuideNode(Node):
 

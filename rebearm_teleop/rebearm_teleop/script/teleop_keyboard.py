@@ -60,7 +60,7 @@ j/l : wrist(M5) move
 g/G : Gripper move
 h   : Move home
 
-### do_calib:=1 parameter required ###
+### --ros-args -p do_calib:=1 parameter required ###
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
 
@@ -261,8 +261,8 @@ def main():
                     robotarm.deg90()
                     control_motor1 = MOTOR1_HOME
                     control_motor2 = 0.0
-                    control_motor3 = MOTOR_RIGHT
-                    control_motor4 = MOTOR_RIGHT
+                    control_motor3 = MOTOR_DEG90
+                    control_motor4 = MOTOR_DEG90
                     control_motor5 = MOTOR5_HOME
                     control_gripper = GRIPPER_OPEN
                     keystroke = 0
