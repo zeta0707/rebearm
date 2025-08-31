@@ -36,6 +36,7 @@ import os, sys
 from time import sleep, time
 import rclpy
 from std_msgs.msg import Float32MultiArray
+from rclpy.node import Node
 
 from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
@@ -45,15 +46,28 @@ Mimic Human's operation!
 Caution: need to run teleop first
 """
 
+class MimcNode(Node):
+    def __init__(self):
+        super().__init__('mimic_offline_node')
+        
+        # Declare parameters with default values
+        self.declare_parameter('port', BUSLINKER2)  # serial port
+
+        # Get parameter values
+        self.PORT = self.get_parameter('port').value
+
 def main():
     rclpy.init()
 
-    node = rclpy.create_node('mimic_offline_node')        # generate node
+    node = MimcNode()       # generate node
+    print('Port: %s' %
+            (node.PORT)
+    )
     print('Rebearm Mimic offline controller')
     print(msg)
     print('CTRL-C to quit')
 
-    robotarm = Rebearm()
+    robotarm = Rebearm(node.PORT)
     angles=robotarm.readAngle()
     print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
     offset = robotarm.get_offsets()

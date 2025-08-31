@@ -66,3 +66,5 @@ CONT_KEY = 3            #don't move untill CONT_KEY*100ms
 
 #human_guide parameter
 TIMER_HGUIDE = 0.05      #how frequent angle capture
+
+BUSLINKER2 = '/dev/buslinker2'

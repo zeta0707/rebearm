@@ -57,18 +57,24 @@ class HumanGuideNode(Node):
         self.declare_parameters(    # bring the param from yaml file
             namespace='',
             parameters=[
+                ('port', BUSLINKER2),
             ])
 
         print('Rebearm human guide controller')
         print(msg)
         print('CTRL-C to quit')
 
+        self.port = self.get_parameter_or('port', Parameter('port', Parameter.Type.STRING, BUSLINKER2)).get_parameter_value().string_value
+        print('port name: %s'%
+            (self.port)
+        )
+
         self.anglePub = self.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
         self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
         atexit.register(self.set_park)
 
-        self.robotarm = Rebearm()
+        self.robotarm = Rebearm(self.port)
         #just check arm's current position
         angles = self.robotarm.readAngle()
         print("Angles:", ' '.join(f'{x:.2f}' for x in angles))

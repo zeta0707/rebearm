@@ -101,13 +101,17 @@ class HumanGuideNode(Node):
         self.declare_parameters(    # bring the param from yaml file
             namespace='',
             parameters=[
-                ('max_deg', 120),
-                ('step_deg', 20),
+                ('port', BUSLINKER2),
             ])
 
         print('Rebearm mimic online controller')
         print(msg)
         print('CTRL-C to quit')
+
+        self.port = self.get_parameter_or('port', Parameter('port', Parameter.Type.STRING, BUSLINKER2)).get_parameter_value().string_value
+        print('port name: %s'%
+            (self.port)
+        )
 
         # motor angle changed by topics
         self.angleSub = self.create_subscription(Float32MultiArray, 'motor_angles', self.cb_angles, qos_profile_sensor_data)
@@ -121,7 +125,7 @@ class HumanGuideNode(Node):
 
         atexit.register(self.set_park)
 
-        self.robotarm = Rebearm()
+        self.robotarm = Rebearm(self.port)
         angles = self.robotarm.readAngle()
         print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()

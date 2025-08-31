@@ -79,11 +79,13 @@ class TeleopKeyboardNode(Node):
         self.declare_parameter('max_ang', 120.0)  # Maximum angle
         self.declare_parameter('ang_step', 3.0)  # Angle step
         self.declare_parameter('do_calib', 0)  # Calibration flag
+        self.declare_parameter('port', BUSLINKER2)  # serial port
 
         # Get parameter values
         self.MAX_ANG = self.get_parameter('max_ang').value
         self.ANG_STEP = self.get_parameter('ang_step').value
         self.DO_CALIB = self.get_parameter('do_calib').value
+        self.PORT = self.get_parameter('port').value
 
 def get_key(settings):
     if os.name == 'nt':
@@ -119,14 +121,14 @@ def main():
     rclpy.init()
 
     node = TeleopKeyboardNode()       # generate node
-    print('Param max lin: %s deg, lin step: %s deg, Calib: %d' %
-            (node.MAX_ANG, node.ANG_STEP, node.DO_CALIB)
+    print('Param max lin: %s deg, lin step: %s deg, Calib: %d  Port: %s' %
+            (node.MAX_ANG, node.ANG_STEP, node.DO_CALIB, node.PORT)
     )
-    
+
     anglePub = node.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
 
     print('Rebearm Teleop Keyboard controller')
-    robotarm = Rebearm()
+    robotarm = Rebearm(node.PORT)
     angles=robotarm.readAngle()
     print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
     offset = robotarm.get_offsets()
