@@ -12,8 +12,8 @@ from . import lx16a
 GRIP_ID = 6
 GRIP_IDM1 = (GRIP_ID - 1)
 
-Tfactor = 25        #value to LX16A time
-T1Factor = 0.3      #300ms more wait
+TMoveFactor = 30     #value to LX16A time, tuning factor
+TSleepMin = 0.2      #minimum sleep time
 
 class Joint:
     def __init__(self, id):
@@ -32,14 +32,14 @@ class Joint:
         if abs(pos - self.prev_pos) > 0.3:
             #no move time parameter, then calculate
             if t_move == 0:
-                t_move =  int(abs(pos - self.prev_pos)*Tfactor)
+                t_move =  int(abs(pos - self.prev_pos)*TMoveFactor)
             self.prev_pos = pos
             try:
                 #-120~120 => 0~240
                 self.servo.move(angle=pos+120.0, time=t_move)
             except:
                 pass
-
+    #don't use now
     def get_pos(self):
         return self.prev_pos
             
@@ -107,18 +107,21 @@ def setArmAgles(arm, ang0, ang1, ang2, ang3, ang4, grip):
 
 def moveJoint(id, joint, mMSG):
     tar_ang = mMSG.data[id-1]
-    cur_ang = joint.get_pos()
+    cur_ang = joint.get_physical_pos()
 
+    if(tar_ang == MOTOR_NOMOVE):
+        return
+    
     #gripper, don't read angle
     if (id == GRIP_ID):
         joint.move_to(tar_ang, 800)
         sleep(0.8)
     else:
         joint.move_to(tar_ang, 0)
-        t = abs(tar_ang - cur_ang)*Tfactor*0.001 + T1Factor
-        sleep(t)
+        t = abs(tar_ang - cur_ang)*TMoveFactor*0.001 + TSleepMin
         #print('id:%d, org:%.2f, tar:%.2f, cur:%.2f, time:%.2f' %(id, cur_ang, tar_ang, joint.get_physical_pos(), t))
-
+        sleep(t)
+        
 def moveJointAll(m1, m2, m3, m4, m5, end, mMSG):
     m1.move_to(mMSG.data[0], 300)
     m2.move_to(mMSG.data[1], 300)
@@ -190,6 +193,8 @@ class Rebearm(Node):
             self.m4.set_offset(deviation)
         elif (id == 5):
             self.m5.set_offset(deviation)
+        elif (id == 6):
+            self.end.set_offset(deviation)
 
     def park(self):
         print("Parking...")
@@ -299,7 +304,9 @@ class Rebearm(Node):
         print("90degree Done")
 
     def picknplace(self, object, down):
+        print("Run picknplace")
         self.motors_on()
+
         if down == 1:
             #move to pick up postion
             self.motorMsg.data[3] = MOTOR4_PICKUP

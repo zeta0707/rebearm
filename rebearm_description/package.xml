@@ -2,20 +2,21 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rebearm_description</name>
-  <version>0.1.1</version>
-  <description>rebearm description package.</description>
+  <version>0.9.1</version>
+  <description>rebearm description package</description>
 
-  <maintainer email="sms0432@gmail.com">Minsoo Song</maintainer>
-
-  <license>Apache-2.0</license>
-
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <maintainer email="zeta0707@gmail.com">ChangWhan Lee</maintainer>
+  <license>Apache 2.0</license>
 
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rviz2</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
 
   <export>
-    <build_type>ament_cmake</build_type>
+    <build_type>ament_python</build_type>
   </export>
 </package>

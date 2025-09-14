@@ -3,8 +3,7 @@ from glob import glob
 from setuptools import find_packages
 from setuptools import setup
 
-package_name = 'rebearm_teleop'
-submodules = "rebearm_teleop/submodules"
+package_name = 'rebearm_description'
 
 setup(
     name=package_name,
@@ -14,11 +13,21 @@ setup(
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'meshes'), glob('meshes/*.stl')),
         (os.path.join('share', package_name, 'param'), glob('param/*.yaml')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
+        (os.path.join('share', package_name, 'xacro'), glob('xacro/*.xacro')),
     ],
     install_requires=[
         'setuptools',
+        'rclpy',
+        'visualization_msgs',
+        'geometry_msgs',
+        'sensor_msgs',
+        'tf2_ros',
+        'tf2_geometry_msgs',
     ],
+    
     zip_safe=True,
     author='ChangWhan Lee',
     author_email='zeta0707@gmail.com',
@@ -32,17 +41,12 @@ setup(
         'Topic :: Software Development',
     ],
     description=(
-        'Teleoperation node using keyboard or joystick for rebearm'
+        'Robot arm description nodes'
     ),
     license='Apache License, Version 2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'teleop_keyboard = rebearm_teleop.script.teleop_keyboard:main',
-            'teleop_joy = rebearm_teleop.script.teleop_joy:main',
-            'human_guide = rebearm_teleop.script.human_guide:main',
-            'mimic_online = rebearm_teleop.script.mimic_online:main',
-            'mimic_offline = rebearm_teleop.script.mimic_offline:main',
+            'place_cube = rebearm_description.place_cube:main',
         ],
     },
 )

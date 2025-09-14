@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rebearm_yolo</name>
-  <version>0.1.1</version>
+  <version>0.9.1</version>
   <description>Yolo ROS package</description>
   <maintainer email="kalanaratnayake95@gmail.com">kalana</maintainer>
   <maintainer email="zeta0707@gmail.com">ChangWhan Lee</maintainer>

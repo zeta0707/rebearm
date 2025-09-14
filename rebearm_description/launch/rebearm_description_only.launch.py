@@ -97,9 +97,15 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
     )
 
+    cube_node = Node(
+        package="rebearm_description", executable="place_cube", name="place_cube", output="log",
+        arguments=[],
+    )
+
     nodes = [
         robot_state_publisher_node,
         rviz_node,
+        cube_node,
     ]
 
     return LaunchDescription(declared_arguments + nodes)

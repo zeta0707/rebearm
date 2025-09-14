@@ -286,7 +286,7 @@
     <child link="${prefix}link6" />
     <axis xyz="1 0 0"/>
     <dynamics damping="0.7"/>
-  <limit velocity="-4.8" effort="1" lower="-1.6" upper="-1.04" />
+  <limit velocity="4.8" effort="1" lower="-1.6" upper="-1.04" />
   </joint>
 
   <!-- Link 6, gripper mover -->

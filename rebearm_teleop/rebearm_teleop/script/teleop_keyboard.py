@@ -258,6 +258,16 @@ def main():
                     print('offset5: %.2f' %(offset[4]))
                     continue
 
+                # calibrate M5 offset  
+                elif key == '6' or key == '^':         
+                    if key == '6': 
+                        offset[5] += OFF_STEP
+                    else:
+                        offset[5] -= OFF_STEP
+                    robotarm.set_offset(6, offset[5])
+                    print('offset6: %.2f' %(offset[5]))
+                    continue
+
                 elif key == '9':
                     print('90degree position')
                     robotarm.deg90()

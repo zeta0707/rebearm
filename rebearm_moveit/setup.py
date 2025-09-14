@@ -3,17 +3,17 @@ from glob import glob
 from setuptools import find_packages
 from setuptools import setup
 
-package_name = 'rebearm_bringup'
+package_name = 'rebearm_moveit'
 
 setup(
     name=package_name,
-    version='0.1.1',
+    version='0.9.9',
     packages=find_packages(exclude=[]),
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.yaml'))),
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
-        (os.path.join('share', package_name, 'param'), glob('param/*.yaml')),
     ],
     install_requires=[
         'setuptools',
@@ -31,10 +31,9 @@ setup(
         'Topic :: Software Development',
     ],
     description=(
-        'rebearm driver node that include iff drive controller, odometry and tf node'
+        'Robot arm control nodes'
     ),
     license='Apache License, Version 2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
         ],
