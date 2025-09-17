@@ -50,10 +50,10 @@ Control Your Robot!
 ---------------------------
 Moving around:
 Left lever left/right:    Waist(M1), left/light
-Left lever up/down:       Shoulder(M2) move
-Right lever up/down:      Elbow(M3) move
-L1 + Right lever up/down: Forearm(M4) move
 Right lever left/right:   Wrist(M5) move 
+Right lever up/down:      Shoulder(M2) move
+L1 + Right lever up/down: Elbow(M3) move
+L2 + Right lever up/down: Forearm(M4) move
 X   :                     gripper toggle
 START :                   Move Home
 CTRL-C to quit
@@ -160,16 +160,19 @@ class TeleopJoyNode(Node):
             if (joymsg.axes[0] != 0):
                 self.control_motor1 -= joymsg.axes[0] * self.step_deg 
                 self.control_motor1 = clamp(self.control_motor1, MOTOR1_MIN, MOTOR1_MAX)
-            elif joymsg.axes[1] != 0:
-                self.control_motor2 += joymsg.axes[1] * self.step_deg 
-                self.control_motor2 = clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX)
+            #elif joymsg.axes[1] != 0:
+            #    self.control_motor2 += joymsg.axes[1] * self.step_deg 
+            #    self.control_motor2 = clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX)
             elif joymsg.axes[3] != 0:
-                if joymsg.buttons[6] == 1:
+                if joymsg.buttons[4] == 1:
+                    self.control_motor3 += joymsg.axes[3] * self.step_deg 
+                    self.control_motor3 = clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX) 
+                elif joymsg.buttons[6] == 1:
                     self.control_motor4 += joymsg.axes[3] * self.step_deg 
                     self.control_motor4 = clamp(self.control_motor4, MOTOR4_MIN, MOTOR4_MAX) 
                 else:
-                    self.control_motor3 += joymsg.axes[3] * self.step_deg 
-                    self.control_motor3 = clamp(self.control_motor3, MOTOR3_MIN, MOTOR3_MAX)                                     
+                    self.control_motor2 += joymsg.axes[3] * self.step_deg 
+                    self.control_motor2 = clamp(self.control_motor2, MOTOR2_MIN, MOTOR2_MAX)                                     
             elif joymsg.axes[2] != 0:
                 self.control_motor5 += joymsg.axes[2] * self.step_deg 
                 self.control_motor5 = clamp(self.control_motor5, MOTOR5_MIN, MOTOR5_MAX)

@@ -50,8 +50,8 @@ class Joint:
             # 0~240 =>-120~120 
             return self.prev_pos
         except:
-            print(self.id)
-            return None
+            print(self.id, "get_angle error")
+            return 0.0
      
     def set_offset(self, deviation):
         #with permanent

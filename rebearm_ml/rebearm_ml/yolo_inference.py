@@ -118,11 +118,10 @@ class IKnetYolo(Node):
         rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_ml/rebearm_ml/')
         modely = rosPath + "iknet_y.pth"
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device('cpu')
         self.modely = IKNet(MAX_Y)
-        #print(self.modely)
         self.modely.to(self.device)
-        self.modely.load_state_dict(torch.load(modely))
+        self.modely.load_state_dict(torch.load(modely, map_location=self.device))
         self.modely.eval()
 
     @property
