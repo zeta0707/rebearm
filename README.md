@@ -16,12 +16,11 @@ X86 64bit Laptop(Asus Zenbook)
 ├── Doc                   => command list
 ├── Images                => Image for this README
 ├── rebearm               => package information
-├── rebearm_bringup       => Not used
 ├── rebearm_control       => Robot arm control node
 ├── rebearm_cv            => Computer Vision Package
 ├── rebearm_description   => Show robot model
 ├── rebearm_interfaces    => Custom Msg 
-├── rebearm_ml            => AI/ML
+├── rebearm_ml            => Control with ML
 ├── rebearm_moveit        => Moveit2
 ├── rebearm_teleop        => Teleoperation by human
 ├── rebearm_yolo          => Start Yolo for object detection
@@ -50,14 +49,21 @@ create_udev_rules_buslinker2.sh, delete_udev_rules_buslinker2.sh, buslinker2.rul
 $ cd ~/ros2_ws/src/rebearm/script/
 $ ./create_udev_rules_buslinker2.sh
 ```
-### rebearm, it uses fit0701 camera   
+### rebearm, it uses fit0701 or daiso camera   
 create_udev_rules_fit0701.sh, delete_udev_rules_fit0701.sh, fit0701.rules
 ```
 $ cd ~/ros2_ws/src/rebearm/script/
 $ ./create_udev_rules_fit0701.sh
+# or
+./create_udev_rules_daiso.sh
 ```
 
 ### **Verify USB camera**  
+Check whether camera is working
+<p align="center">
+    <img src="/Images/cameraview.gif" width="500" />
+</p>
+
 ```bash
 $ cd ~/ros2_ws
 #  terminal #1
@@ -71,7 +77,7 @@ $ ros2 run image_view image_view --ros-args --remap /image:=/image_raw
 ### **Play with joystick**  
 Control Robot Arm with gamepad/jostick  
 <p align="center">
-    <img src="/Images/arm_joystick.gif" width="500" />
+    <img src="/Images/joy_all.gif" width="500" />
 </p>
 
 ```bash
@@ -79,10 +85,10 @@ $ cd ~/ros2_ws
 $ ros2 launch monicar2_teleop joy_all.launch.py
 
 Left lever left/right:    Waist(M1), left/light
-Left lever up/down:       Shoulder(M2) move
-Right lever up/down:      Elbow(M3) move
-L1 + Right lever up/down: Forearm(M4) move
 Right lever left/right:   Wrist(M5) move 
+Right lever up/down:      Shoulder(M2) move
+L1 + Right lever up/down: Elbow(M3) move
+L2 + Right lever up/down: Forearm(M4) move
 X   :                     gripper toggle
 START :                   Move Home
 ```
@@ -90,7 +96,7 @@ START :                   Move Home
 ### **Play with keyboard**  
 Control Robot Arm with keyboard  
 <p align="center">
-    <img src="Images/arm_keyboard.gif" width="500" />
+    <img src="Images/keyboard.gif" width="500" />
 </p>
 
 ```bash
@@ -105,15 +111,15 @@ j/l : wrist(M5) move
 g/G : Gripper move
 h   : Move home
 
-### do_calib:=1 parameter required ###
+### --ros-args -p do_calib:=1 parameter required ###
 9   : 90 position, motor assemble check
 z   : zero position, motor assemble check
 ```
 
 ### **Human guide**  
-Make angle list by human operation with arm is power off
+Make angle list by human operation while arm is torgue off
 <p align="center">
-    <img src="Images/arm_mimic.gif" width="500" />
+    <img src="Images/humanguide.gif" width="500" />
 </p>   
 
 ```bash
@@ -123,21 +129,40 @@ $ ros2 run rebearm_teleop human_guide
 
 ### **Mimic teleop online or offline**  
 Autonomous move for mimicing human operation
+1. Mimic offline
 <p align="center">
-    <img src="Images/arm_mimic.gif" width="500" />
+    <img src="Images/mimicOffline.gif" width="500" />
 </p>
 
 ```bash
 $ cd ~/ros2_ws  
 $ ros2 run rebearm_teleop mimic_offline
-#or
+```
+
+2. Mimic Online
+```bash
+$ cd ~/ros2_ws  
 $ ros2 run rebearm_teleop mimic_online
+```
+
+3. Leader -> Follower, Human guide + Mimic online
+<p align="center">
+    <img src="Images/leaderfollower.gif" width="500" />
+</p>
+
+```bash
+# PC
+$ ros2 launch rebearm_description rebearm_description_only.launch.py
+# Rebearm follower
+$ ros2 run rebearm_teleop mimic_online --ros-args -p port:='/dev/ttyUSB0'
+# Rebearm leader
+$ ros2 run rebearm_teleop human_guide --ros-args -p port:='/dev/ttyUSB1'
 ```
 
 ### **Blob pick and plance**  
 Find the any color box from camera, then pick it up and place down   
 <p align="center">
-    <img src="./Images/arm_blob.gif" width="500" />
+    <img src="./Images/blob_all.gif" width="500" />
 </p>
 
 ```bash
@@ -150,7 +175,7 @@ $ ros2 launch rebearm_control blob_all.launch.py color:=green
 ### **Yolo pick and place**  
 Find the object using Yolo11 from camera, then pick it up and place down
 <p align="center">
-    <img src="Images/arm_yolo.gif" width="500" />
+    <img src="Images/yolo_all.gif" width="500" />
 </p>
 
 ```bash
@@ -158,32 +183,10 @@ $ cd ~/ros2_ws
 $ ros2 launch rebearm_control yolo_all.launch.py
 ```
 
-### **state publisher -> robot in RVIZ**  
-joint_states publisher GUI -> robot in rviz, ie simulation 
+### **Blob pick and place with Machine Learning**
+Camera -> Blob, Y -> machine learning -> move robot arm
 <p align="center">
-    <img src='Images/blank.gif' width=500 />
-</p>
-
-```bash
-$ cd ~/ros2_ws  
-$ ros2 launch rebearm_description rebearm_description.launch.py
-```
-
-### **state publisher -> Real robot**  
-joint_states publisher GUI -> real robot, not simulation 
-<p align="center">
-    <img src='Images/blank.gif' width=500 />
-</p>
-
-```bash
-$ cd ~/ros2_ws  
-$ ros2 launch rebearm_description state_all.launch.py
-```
-
-### **Blob pick and place with Deep Learning**
-Camera -> Blob, Y -> neural network -> move robot arm
-<p align="center">
-    <img src='Images/blank.gif' width=500 />
+    <img src='Images/blob_ml.gif' width=500 />
 </p>
 
 ```bash
@@ -194,10 +197,10 @@ $ ros2 launch rebearm_control blob_getdata.launch.py
 $ ros2 launch rebearm_ml blob_nn.launch.py
 ```
 
-### **Yolo pick and place with Deep Learning**
-Camera -> Yolo, Y -> neural network -> move robot arm   
+### **Yolo pick and place with Machine Learning**
+Camera -> Yolo, Y -> machine learning -> move robot arm   
 <p align="center">
-    <img src='Images/blank.gif' width=500 />
+    <img src='Images/yolo_ml.gif' width=500 />
 </p>
 
 ```bash
@@ -207,8 +210,31 @@ $ ros2 launch rebearm_control yolo_getdata.launch.py
 #terminal #2
 $ ros2 launch rebearm_ml yolo_nn.launch.py
 ```
+
+### **state publisher -> robot in RVIZ**  
+joint_states publisher GUI -> robot in rviz, ie simulation 
+<p align="center">
+    <img src='Images/state_gui.gif' width=500 />
+</p>
+
+```bash
+$ cd ~/ros2_ws  
+$ ros2 launch rebearm_description rebearm_description.launch.py
+```
+
+### **state publisher -> Real robot**  
+joint_states publisher GUI -> real robot, not simulation 
+<p align="center">
+    <img src='Images/state_all.gif width=500 />
+</p>
+
+```bash
+$ cd ~/ros2_ws  
+$ ros2 launch rebearm_description state_all.launch.py
+```
+
 ### **Moveit2**
-robotic manipulation platform for ROS 2    
+robotic manipulation platform for ROS 2, TBD
 <p align="center">
     <img src='Images/blank.gif' width=500 />
 </p>
@@ -216,5 +242,5 @@ robotic manipulation platform for ROS 2
 ```bash
 $ cd ~/ros2_ws  
 #terminal #1
-$ rros2 launch rebearm_moveit demo.launch.py 
+$ ros2 launch rebearm_moveit demo.launch.py 
 ```
