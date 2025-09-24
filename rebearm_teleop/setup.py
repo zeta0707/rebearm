@@ -43,6 +43,7 @@ setup(
             'human_guide = rebearm_teleop.script.human_guide:main',
             'mimic_online = rebearm_teleop.script.mimic_online:main',
             'mimic_offline = rebearm_teleop.script.mimic_offline:main',
+            'human_guide_yolo = rebearm_teleop.script.human_guide_waitobj:main',
         ],
     },
 )
