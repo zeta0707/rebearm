@@ -33,34 +33,79 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from time import sleep, time
-import os
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 import atexit
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import Float32MultiArray
+from sensor_msgs.msg import JointState
+import math
 from rebearm_interfaces.msg import Detections
 
-from .submodules.myutil import Rebearm, lists_not_close
+from .submodules.myutil import Rebearm, setArmAgles
 from .submodules.myconfig import *
 
 msg = """
-Move Robot by hand
----------------------------
+Mimic Human's operation!
+Caution: need to be careful
 """
+
+class JointStateFromData(Node):
+    def __init__(self):
+        super().__init__('joint_state_from_data')
+        
+        # Publisher for joint states
+        self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)        
+     
+        # Joint names - MUST match your URDF exactly
+        self.joint_names = [
+            'joint1',
+            'joint2', 
+            'joint3',
+            'joint4',
+            'joint5',
+            'joint6'
+        ]
+        
+        # Current joint positions from your msg.data
+        self.current_positions = [0.0] * 6
+        self.get_logger().info('Joint State Publisher from msg.data started')
+        
+    def update_from_msg_data(self, msg_data):
+        # If msg.data is in degrees, convert to radians
+        self.current_positions = [math.radians(angle) for angle in msg_data]
+    
+    def publish_joint_states(self):
+        """Publish current joint states to /joint_states topic"""
+        joint_state = JointState()
+        
+        # Set timestamp
+        joint_state.header.stamp = self.get_clock().now().to_msg()
+        joint_state.header.frame_id = ''
+        
+        # Set joint data
+        joint_state.name = self.joint_names
+        joint_state.position = self.current_positions
+        
+        # Optional: set velocities and efforts (leave empty if not needed)
+        joint_state.velocity = []
+        joint_state.effort = []
+        
+        # Publish the message
+        self.joint_pub.publish(joint_state)
 
 class HumanGuideNode(Node):
 
     def __init__(self):
-        super().__init__('human_guide_node')
+        super().__init__('mimic_online_node')
         self.declare_parameters(    # bring the param from yaml file
             namespace='',
             parameters=[
                 ('port', BUSLINKER2),
             ])
 
-        print('Rebearm human guide controller')
+        print('Rebearm mimic online controller')
         print(msg)
         print('CTRL-C to quit')
 
@@ -78,7 +123,10 @@ class HumanGuideNode(Node):
             (self.det_class1, self.det_class2, self.det_class3, self.det_class4)
         )
 
-        atexit.register(self.set_park)
+        self.port = self.get_parameter_or('port', Parameter('port', Parameter.Type.STRING, BUSLINKER2)).get_parameter_value().string_value
+        print('port name: %s'%
+            (self.port)
+        )
 
         self._time_detected = 0.0
         self.detect_object = 0
@@ -86,32 +134,30 @@ class HumanGuideNode(Node):
         self.sub_center = self.create_subscription(Detections, "/yolo_ros/detection_result", self.update_object, qos_profile_sensor_data)
         self.get_logger().info("Subscriber set")
 
-        self.port = self.get_parameter_or('port', Parameter('port', Parameter.Type.STRING, BUSLINKER2)).get_parameter_value().string_value
-        print('port name: %s'%
-            (self.port)
-        )
+        # motor angle changed by topics
+        self.angleSub = self.create_subscription(Float32MultiArray, 'motor_angles', self.cb_angles, qos_profile_sensor_data)
+        # timer callback
+        self.timer = self.create_timer(TIMER_HGUIDE, self.cb_timer)
 
-        self.anglePub = self.create_publisher(Float32MultiArray, 'motor_angles', qos_profile_sensor_data)
         self.motorMsg = Float32MultiArray()
         self.motorMsg.data = [MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN]
+
+        self.jsNode = JointStateFromData()
+
         atexit.register(self.set_park)
 
         self.robotarm = Rebearm(self.port)
-        #just check arm's current position
         angles = self.robotarm.readAngle()
         print("Angles:", ' '.join(f'{x:.2f}' for x in angles))
         offset = self.robotarm.get_offsets()
         print("Offset:", ' '.join(f'{x:.2f}' for x in offset))
         self.robotarm.home()
 
-        self.prev_angles = self.robotarm.readAngle()
-        # timer callback
-        self.timer = self.create_timer(TIMER_HGUIDE, self.cb_timer)
+        self.allow = 0
 
-        rosPath = os.path.expanduser('~/ros2_ws/src/rebearm/rebearm_teleop/rebearm_teleop/script/')
-        self.fhandle = open(rosPath + 'automove.csv', 'w')
-
-        self.prev_time = time()
+    def cb_timer(self):
+        self.jsNode.update_from_msg_data(self.motorMsg.data)
+        self.jsNode.publish_joint_states()
 
     def update_object(self, message):
         #ignore 1 second previous message
@@ -125,32 +171,39 @@ class HumanGuideNode(Node):
             print(message.full_class_list[box])
             if (message.full_class_list[box] == self.det_class1) or (message.full_class_list[box] == self.det_class2) or (message.full_class_list[box] == self.det_class3) or (message.full_class_list[box] == self.det_class4) :
                 self._time_detected = time()
-                if message.full_class_list[box] == self.det_class1:
-                    self.robotarm.motors_off()
-                elif message.full_class_list[box] == self.det_class2:
-                    self.robotarm.motors_off()
+                #cupcake
+                if message.full_class_list[box] == self.det_class2:
+                    self.allow = 1
+                #donut
+                elif message.full_class_list[box] == self.det_class3:
+                    self.allow = 0
             else:
                 self.detect_object = 0
             idx = idx + 1
 
-    def cb_timer(self):
-        timediff = time() - self.prev_time
-        self.prev_time = time()
-        angles = self.robotarm.readAngle()
-
-        #only publish topic, write to file when change angles
-        if lists_not_close(self.prev_angles, angles):
-            self.motorMsg.data = angles
-            print('M1= %.2f, M2=%.2f, M3= %.2f, M4=%.2f, M5=%.2f, G=%.2f'%(self.motorMsg.data[0],self.motorMsg.data[1],self.motorMsg.data[2],
-                                                                        self.motorMsg.data[3],self.motorMsg.data[4],self.motorMsg.data[5]))
-            self.fhandle.write(f'{self.motorMsg.data[0]:.2f}' + ',' + f'{self.motorMsg.data[1]:.2f}'  + ',' + f'{self.motorMsg.data[2]:.2f}'  + ',' + f'{self.motorMsg.data[3]:.2f}'
-                            + ',' + f'{self.motorMsg.data[4]:.2f}'  + ',' + f'{self.motorMsg.data[5]:.2f}'  + ',' + f'{timediff:.2f}' + '\n')
-
-            self.fhandle.flush()
-            self.anglePub.publish(self.motorMsg)
+    def cb_angles(self, msg):
+        #wait yolo class2, cupcke
+        if self.allow == 0:
+            return
         
-        self.prev_angles = angles
-        
+        control_motor1 = msg.data[0]
+        control_motor2 = msg.data[1]
+        control_motor3 = msg.data[2]
+        control_motor4 = msg.data[3]
+        control_motor5 = msg.data[4]
+        control_gripper = msg.data[5]
+
+        self.jsNode.update_from_msg_data(msg.data)
+        self.jsNode.publish_joint_states()
+
+        if control_motor1 == MOTOR_HOMING:
+            self.robotarm.home()
+            print("Moving HOME")
+        else:
+            setArmAgles(self.motorMsg, control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper)
+            self.robotarm.run(self.motorMsg)
+            print('M1= %.1f, M2=%.1f, M3= %.1f, M4=%.1f, M5=%.1f, G=%.1f'%(control_motor1, control_motor2, control_motor3, control_motor4, control_motor5, control_gripper))
+
     def set_park(self):
         self.get_logger().info('Arm parking, be careful')
         self.robotarm.park()
