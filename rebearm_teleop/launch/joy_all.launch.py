@@ -29,7 +29,7 @@ def generate_launch_description():
       parameters=[{
         'port': port,
         'max_deg': 120,
-        'step_deg': 5,
+        'step_deg': 6,
       }],
     ),
   ])

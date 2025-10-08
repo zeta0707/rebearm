@@ -67,14 +67,14 @@ class TeleopJoyNode(Node):
             namespace='',
             parameters=[
                 ('max_deg', 120),
-                ('step_deg', 20),
+                ('step_deg', 6),
                 ('port', BUSLINKER2),
             ])
         
         print('Rebearm Teleop Joystick controller')
         print(msg)
         self.max_deg = self.get_parameter_or('max_deg', Parameter('max_deg', Parameter.Type.INTEGER, 120)).get_parameter_value().integer_value
-        self.step_deg = self.get_parameter_or('step_deg', Parameter('step_deg', Parameter.Type.INTEGER, 20)).get_parameter_value().integer_value
+        self.step_deg = self.get_parameter_or('step_deg', Parameter('step_deg', Parameter.Type.INTEGER, 6)).get_parameter_value().integer_value
         self.port = self.get_parameter_or('port', Parameter('port', Parameter.Type.STRING, BUSLINKER2)).get_parameter_value().string_value
         print('max ang: %s rad/s, step: %s, port: %s'%
             (self.max_deg,

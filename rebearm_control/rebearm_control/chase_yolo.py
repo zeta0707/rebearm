@@ -92,7 +92,7 @@ class ChaseObject(Node):
         self.get_logger().info("Subscriber set")
 
          # Create a timer that will gate the node actions twice a second
-        self.timer = self.create_timer(CB_FREQ, self.node_callback)
+        self.timer = self.create_timer(FOLLOW_CB_FREQ, self.node_callback)
 
         self.motorMsg = Float32MultiArray()
         setArmAgles(self.motorMsg, MOTOR1_HOME, MOTOR2_HOME, MOTOR3_HOME, MOTOR4_HOME, MOTOR5_HOME, GRIPPER_OPEN)

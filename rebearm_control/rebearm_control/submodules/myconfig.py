@@ -54,10 +54,10 @@ GRIPPER_MAX = GRIPPER_OPEN
 PICTURE_SIZE_X = 640.0
 PICTURE_SIZE_Y = 480.0
 
-CB_FREQ = 0.1
+FOLLOW_CB_FREQ = 0.1
 
 #teleop_joy parameter
-MAX_CHAT = 5           #for protecting jostick's button chattering
+MAX_CHAT = 5            #for protecting jostick's button chattering
 TIMER_JOY = 0.1         #for protecting jostick's button chattering
 CONT_JOY = 3            #don't move untill CONT_JOY
 

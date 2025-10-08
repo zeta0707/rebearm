@@ -76,9 +76,9 @@ class TeleopKeyboardNode(Node):
         super().__init__('teleop_keyboard_node')
         
         # Declare parameters with default values
-        self.declare_parameter('max_ang', 120.0)  # Maximum angle
-        self.declare_parameter('ang_step', 3.0)  # Angle step
-        self.declare_parameter('do_calib', 0)  # Calibration flag
+        self.declare_parameter('max_ang', 120.0)    # Maximum angle
+        self.declare_parameter('ang_step', 6.0)     # Angle step
+        self.declare_parameter('do_calib', 0)       # Calibration flag
         self.declare_parameter('port', BUSLINKER2)  # serial port
 
         # Get parameter values
