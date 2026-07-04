@@ -4,10 +4,12 @@ Robot 3D model, BOM: Byungki
 Circuit: Byungki, ZETA7      
 ROS: ZETA7   
 
-<p align="center">
-    <img src="/Images/rebearm1.png" width="400" hspace="10" />
-    <img src="/Images/rebearm2.png" width="400" hspace="10" />
-</p>
+<table>
+<tr>
+<td width="50%"><img src="/Images/rebearm1.png" width="100%"/></td>
+<td width="50%"><img src="/Images/rebearm2.png" width="100%"/></td>
+</tr>
+</table>
 
 ## Test System   
 RasberryPi 5     
