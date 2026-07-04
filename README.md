@@ -5,11 +5,8 @@ Circuit: Byungki, ZETA7
 ROS: ZETA7   
 
 <p align="center">
-    <img src="/Images/rebearm1.png" width="500" />
-</p>
-
-<p align="center">
-    <img src="/Images/rebearm2.png" width="500" />
+    <img src="/Images/rebearm1.png" width="400" hspace="10" />
+    <img src="/Images/rebearm2.png" width="400" hspace="10" />
 </p>
 
 ## Test System   
@@ -32,11 +29,11 @@ X86 64bit Laptop(Asus Zenbook)
 ├── rebearm_moveit        => Moveit2
 ├── rebearm_teleop        => Teleoperation by human
 ├── rebearm_yolo          => Start Yolo for object detection
-├── script                => configure buslinker, camera
+├── script                => configure buslinker and camera
 ```
 
 # Especially thanks
-Claude AI   
+Claude AI  : Start to use AI for making code
 OMO R1 Mini: https://github.com/omorobot/omo_r1mini-foxy     
 maximkulkin: https://github.com/maximkulkin/lewansoul-lx16a   
 ethanlipson: https://github.com/ethanlipson/PyLX-16A   
